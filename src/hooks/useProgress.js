@@ -73,6 +73,29 @@ export function useProgress() {
     });
   }, []);
 
+  const getSavedCode = useCallback((problemId) => {
+    return progress[problemId]?.code || null;
+  }, [progress]);
+
+  const getSavedLanguage = useCallback((problemId) => {
+    return progress[problemId]?.language || 'javascript';
+  }, [progress]);
+
+  const saveCode = useCallback((problemId, code, language) => {
+    setProgress(prev => {
+      const next = {
+        ...prev,
+        [problemId]: {
+          ...prev[problemId],
+          code,
+          language,
+        },
+      };
+      saveProgress(next);
+      return next;
+    });
+  }, []);
+
   const getStats = useCallback(() => {
     const values = Object.values(progress);
     return {
@@ -89,6 +112,9 @@ export function useProgress() {
     updateStatus,
     getNotes,
     saveNotes,
+    getSavedCode,
+    getSavedLanguage,
+    saveCode,
     isBookmarked,
     toggleBookmark,
     getStats,

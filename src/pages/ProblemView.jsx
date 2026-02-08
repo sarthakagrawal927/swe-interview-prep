@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { useProblems } from '../hooks/useProblems';
@@ -19,34 +19,71 @@ import {
   Save,
   ArrowLeft,
   Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function ProblemView() {
   const { id } = useParams();
   const { getById, patterns } = useProblems();
-  const { getStatus, updateStatus, getNotes, saveNotes } = useProgress();
+  const { getStatus, updateStatus, getNotes, saveNotes, getSavedCode, getSavedLanguage, saveCode } = useProgress();
   const { execute, output, errors, testResults, isRunning, clearOutput } = useCodeExecution();
 
   const problem = getById(id);
   const [code, setCode] = useState('');
+  const [language, setLanguage] = useState('javascript');
   const [notes, setNotesLocal] = useState('');
   const [expandedSteps, setExpandedSteps] = useState({});
   const [revealedHints, setRevealedHints] = useState({});
   const [revealedApproach, setRevealedApproach] = useState({});
   const [revealedCode, setRevealedCode] = useState({});
   const [showEditor, setShowEditor] = useState(false);
+  const [markers, setMarkers] = useState([]);
+  const saveTimerRef = useRef(null);
 
   useEffect(() => {
     if (problem) {
-      setCode(problem.starterCode);
+      const saved = getSavedCode(problem.id);
+      setCode(saved !== null ? saved : problem.starterCode);
+      setLanguage(getSavedLanguage(problem.id));
       setNotesLocal(getNotes(problem.id));
       setExpandedSteps({});
       setRevealedHints({});
       setRevealedApproach({});
       setRevealedCode({});
+      setMarkers([]);
       clearOutput();
     }
   }, [problem?.id]);
+
+  // Debounced auto-save code to localStorage
+  const handleCodeChange = useCallback((value) => {
+    const newCode = value || '';
+    setCode(newCode);
+    if (problem) {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => {
+        saveCode(problem.id, newCode, language);
+      }, 800);
+    }
+  }, [problem, language, saveCode]);
+
+  // Save language preference when it changes
+  useEffect(() => {
+    if (problem && code) {
+      saveCode(problem.id, code, language);
+    }
+  }, [language]);
+
+  // Cleanup timer
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
+
+  const handleValidation = useCallback((newMarkers) => {
+    setMarkers(newMarkers.filter(m => m.severity >= 8)); // errors only (8 = Error)
+  }, []);
 
   const handleRun = useCallback(async () => {
     if (!problem || isRunning) return;
@@ -54,16 +91,18 @@ export default function ProblemView() {
     if (status === 'unseen') {
       updateStatus(problem.id, 'attempted');
     }
-    const result = await execute(code, problem.testCases);
+    const result = await execute(code, problem.testCases, language);
     if (result.testResults.length > 0 && result.testResults.every(t => t.passed)) {
       updateStatus(problem.id, 'solved');
     }
-  }, [code, problem, isRunning, execute, getStatus, updateStatus]);
+  }, [code, problem, isRunning, execute, getStatus, updateStatus, language]);
 
   const handleReset = () => {
     if (problem) {
       setCode(problem.starterCode);
+      setMarkers([]);
       clearOutput();
+      saveCode(problem.id, problem.starterCode, language);
     }
   };
 
@@ -127,13 +166,20 @@ export default function ProblemView() {
         {/* RIGHT PANE */}
         <div className="flex w-[60%] flex-col bg-gray-950">
           <div className="flex-[7] min-h-0 overflow-hidden border-b border-gray-800">
-            <EditorToolbar handleReset={handleReset} handleRun={handleRun} isRunning={isRunning} />
+            <EditorToolbar
+              handleReset={handleReset}
+              handleRun={handleRun}
+              isRunning={isRunning}
+              language={language}
+              setLanguage={setLanguage}
+            />
             <Editor
               height="100%"
-              defaultLanguage="javascript"
+              language={language}
               theme="vs-dark"
               value={code}
-              onChange={(value) => setCode(value || '')}
+              onChange={handleCodeChange}
+              onValidate={handleValidation}
               options={{
                 minimap: { enabled: false },
                 fontSize: 14,
@@ -147,10 +193,17 @@ export default function ProblemView() {
             />
           </div>
           <div className="flex-[3] overflow-y-auto bg-gray-900">
-            <div className="flex h-9 items-center border-b border-gray-800 px-4">
+            <div className="flex h-9 items-center justify-between border-b border-gray-800 px-4">
               <span className="text-xs font-medium text-gray-400">Output</span>
+              {markers.length > 0 && (
+                <span className="flex items-center gap-1 text-xs text-yellow-400">
+                  <AlertTriangle className="h-3 w-3" />
+                  {markers.length} error{markers.length > 1 ? 's' : ''}
+                </span>
+              )}
             </div>
             <div className="p-4">
+              <SyntaxErrors markers={markers} />
               <OutputContent output={output} errors={errors} testResults={testResults} />
             </div>
           </div>
@@ -196,14 +249,21 @@ export default function ProblemView() {
 
             {showEditor && (
               <div className="mt-2 overflow-hidden rounded-xl border border-gray-800">
-                <EditorToolbar handleReset={handleReset} handleRun={handleRun} isRunning={isRunning} />
+                <EditorToolbar
+                  handleReset={handleReset}
+                  handleRun={handleRun}
+                  isRunning={isRunning}
+                  language={language}
+                  setLanguage={setLanguage}
+                />
                 <div className="h-[300px]">
                   <Editor
                     height="100%"
-                    defaultLanguage="javascript"
+                    language={language}
                     theme="vs-dark"
                     value={code}
-                    onChange={(value) => setCode(value || '')}
+                    onChange={handleCodeChange}
+                    onValidate={handleValidation}
                     options={{
                       minimap: { enabled: false },
                       fontSize: 13,
@@ -217,6 +277,7 @@ export default function ProblemView() {
                   />
                 </div>
                 <div className="border-t border-gray-800 bg-gray-900 p-3">
+                  <SyntaxErrors markers={markers} />
                   <OutputContent output={output} errors={errors} testResults={testResults} />
                 </div>
               </div>
@@ -339,10 +400,27 @@ function NotesSection({ notes, setNotesLocal, handleSaveNotes }) {
 }
 
 /** Editor toolbar with Run and Reset buttons */
-function EditorToolbar({ handleReset, handleRun, isRunning }) {
+function EditorToolbar({ handleReset, handleRun, isRunning, language, setLanguage }) {
   return (
     <div className="flex items-center justify-between border-b border-gray-800 px-3 sm:px-4 py-2">
-      <span className="text-xs font-medium text-gray-400">JavaScript</span>
+      <div className="flex items-center gap-1 rounded-md bg-gray-800 p-0.5">
+        <button
+          onClick={() => setLanguage('javascript')}
+          className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+            language === 'javascript' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'
+          }`}
+        >
+          JS
+        </button>
+        <button
+          onClick={() => setLanguage('typescript')}
+          className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+            language === 'typescript' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+          }`}
+        >
+          TS
+        </button>
+      </div>
       <div className="flex items-center gap-2">
         <button
           onClick={handleReset}
@@ -364,6 +442,24 @@ function EditorToolbar({ handleReset, handleRun, isRunning }) {
           Run
         </button>
       </div>
+    </div>
+  );
+}
+
+/** Displays syntax/type errors from Monaco markers */
+function SyntaxErrors({ markers }) {
+  if (markers.length === 0) return null;
+  return (
+    <div className="mb-3 space-y-1">
+      {markers.map((m, i) => (
+        <div key={i} className="flex items-start gap-2 rounded-lg border border-yellow-500/20 bg-yellow-500/5 px-3 py-2">
+          <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 text-yellow-400 mt-0.5" />
+          <div className="text-xs text-yellow-300">
+            <span className="text-yellow-500">Ln {m.startLineNumber}, Col {m.startColumn}:</span>{' '}
+            {m.message}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

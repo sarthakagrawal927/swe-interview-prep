@@ -1,4 +1,17 @@
 import { useState, useCallback } from 'react';
+import { transform } from 'sucrase';
+
+function transpileTS(code) {
+  try {
+    const result = transform(code, {
+      transforms: ['typescript'],
+      disableESTransforms: true,
+    });
+    return { code: result.code, error: null };
+  } catch (e) {
+    return { code: null, error: e.message };
+  }
+}
 
 export function useCodeExecution() {
   const [output, setOutput] = useState('');
@@ -6,21 +19,31 @@ export function useCodeExecution() {
   const [testResults, setTestResults] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
 
-  const execute = useCallback((code, testCases) => {
+  const execute = useCallback((code, testCases, language = 'javascript') => {
     setIsRunning(true);
     setOutput('');
     setErrors(null);
     setTestResults([]);
+
+    // Transpile TS to JS if needed
+    let jsCode = code;
+    if (language === 'typescript') {
+      const { code: transpiled, error } = transpileTS(code);
+      if (error) {
+        setErrors('TypeScript Error: ' + error);
+        setIsRunning(false);
+        return Promise.resolve({ output: '', errors: 'TypeScript Error: ' + error, testResults: [] });
+      }
+      jsCode = transpiled;
+    }
 
     return new Promise((resolve) => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.sandbox = 'allow-scripts';
 
-      // Build the code to run inside the iframe
       const testCasesJSON = JSON.stringify(testCases || []);
 
-      // Extract function name from user code
       const funcMatchRegex = `
         const funcMatches = userCode.match(/function\\s+(\\w+)/g);
         let funcName = null;
@@ -45,7 +68,7 @@ export function useCodeExecution() {
         console.info = function() { logs.push('INFO: ' + Array.from(arguments).map(String).join(' ')); };
 
         try {
-          const userCode = ${JSON.stringify(code)};
+          const userCode = ${JSON.stringify(jsCode)};
           eval(userCode);
 
           const testCases = ${testCasesJSON};
@@ -90,7 +113,6 @@ export function useCodeExecution() {
 
       window.addEventListener('message', handler);
 
-      // Timeout after 5 seconds
       timeout = setTimeout(() => {
         window.removeEventListener('message', handler);
         if (iframe.parentNode) document.body.removeChild(iframe);
