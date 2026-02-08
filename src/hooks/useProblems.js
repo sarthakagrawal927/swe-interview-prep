@@ -1,21 +1,11 @@
 import { useMemo, useState, useCallback } from 'react';
 import data from '../data/problems.json';
 
-const CUSTOM_KEY = 'dsa-prep-custom-problems';
-
-function loadCustomProblems() {
-  try {
-    return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
 export function useProblems() {
   const { patterns } = data;
-  const [customProblems, setCustomProblems] = useState(loadCustomProblems);
+  const [customProblems, setCustomProblems] = useState([]);
 
-  // Merge built-in + custom, custom overrides by id
+  // Merge built-in + session-only custom problems
   const problems = useMemo(() => {
     const builtIn = data.problems;
     const seen = new Set(builtIn.map(p => p.id));
@@ -30,19 +20,7 @@ export function useProblems() {
   }, [customProblems]);
 
   const addCustomProblem = useCallback((problem) => {
-    setCustomProblems(prev => {
-      const next = [...prev.filter(p => p.id !== problem.id), problem];
-      localStorage.setItem(CUSTOM_KEY, JSON.stringify(next));
-      return next;
-    });
-  }, []);
-
-  const removeCustomProblem = useCallback((id) => {
-    setCustomProblems(prev => {
-      const next = prev.filter(p => p.id !== id);
-      localStorage.setItem(CUSTOM_KEY, JSON.stringify(next));
-      return next;
-    });
+    setCustomProblems(prev => [...prev.filter(p => p.id !== problem.id), problem]);
   }, []);
 
   const getById = (id) => {
@@ -101,7 +79,5 @@ export function useProblems() {
     getPatternStats,
     getAllAnkiCards,
     addCustomProblem,
-    removeCustomProblem,
-    customProblems,
   };
 }

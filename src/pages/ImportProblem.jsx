@@ -3,14 +3,148 @@ import { useNavigate } from 'react-router-dom';
 import { useProblems } from '../hooks/useProblems';
 import {
   Link2,
-  ArrowRight,
-  Plus,
-  Trash2,
   CheckCircle2,
   Loader2,
+  AlertTriangle,
+  Sparkles,
 } from 'lucide-react';
 
 const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+// Map LeetCode topic tags to our pattern IDs
+const TAG_TO_PATTERN = {
+  'array': 'array-hashing', 'hash-table': 'array-hashing', 'string': 'array-hashing',
+  'two-pointers': 'two-pointers', 'three-sum': 'two-pointers',
+  'sliding-window': 'sliding-window',
+  'stack': 'stack', 'monotonic-stack': 'stack',
+  'binary-search': 'binary-search',
+  'linked-list': 'linked-list',
+  'tree': 'trees', 'binary-tree': 'trees', 'binary-search-tree': 'trees', 'depth-first-search': 'trees', 'breadth-first-search': 'trees',
+  'trie': 'tries',
+  'heap-priority-queue': 'heap',
+  'backtracking': 'backtracking',
+  'graph': 'graphs', 'topological-sort': 'graphs', 'shortest-path': 'graphs', 'union-find': 'graphs',
+  'dynamic-programming': 'dp-1d',
+  'greedy': 'greedy',
+  'interval': 'intervals', 'merge-intervals': 'intervals', 'line-sweep': 'intervals',
+  'math': 'math-geometry', 'geometry': 'math-geometry', 'matrix': 'math-geometry',
+  'bit-manipulation': 'bit-manipulation',
+};
+
+function stripHtml(html) {
+  return html
+    .replace(/<pre[^>]*>/gi, '\n```\n')
+    .replace(/<\/pre>/gi, '\n```\n')
+    .replace(/<code>/gi, '`').replace(/<\/code>/gi, '`')
+    .replace(/<strong>/gi, '**').replace(/<\/strong>/gi, '**')
+    .replace(/<em>/gi, '*').replace(/<\/em>/gi, '*')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<li>/gi, '- ').replace(/<\/li>/gi, '\n')
+    .replace(/<p>/gi, '\n').replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function parseTestCasesFromDescription(desc, funcName) {
+  const tests = [];
+  // Match patterns like: Input: nums = [2,7,11,15], target = 9 \n Output: [0,1]
+  const blocks = desc.split(/(?=\*?\*?Example\s*\d)/i);
+  for (const block of blocks) {
+    const inputMatch = block.match(/Input:\s*(.+?)(?:\n|Output)/s);
+    const outputMatch = block.match(/Output:\s*(.+?)(?:\n|Explanation|$)/s);
+    if (inputMatch && outputMatch) {
+      try {
+        const inputRaw = inputMatch[1].trim();
+        const outputRaw = outputMatch[1].trim();
+        // Parse "varName = value, varName2 = value2" format
+        const argParts = inputRaw.split(/,\s*(?=\w+\s*=)/);
+        const args = argParts.map(part => {
+          const valMatch = part.match(/=\s*(.+)/);
+          if (!valMatch) return part.trim();
+          let val = valMatch[1].trim();
+          // Try parsing as JSON
+          try { return JSON.parse(val); } catch { }
+          // Handle quoted strings without JSON quotes
+          if (/^".*"$/.test(val) || /^'.*'$/.test(val)) return val.slice(1, -1);
+          // Handle numbers
+          if (!isNaN(val)) return Number(val);
+          // Handle boolean
+          if (val === 'true') return true;
+          if (val === 'false') return false;
+          return val;
+        });
+
+        let expected;
+        try { expected = JSON.parse(outputRaw); } catch {
+          if (!isNaN(outputRaw)) expected = Number(outputRaw);
+          else if (outputRaw === 'true') expected = true;
+          else if (outputRaw === 'false') expected = false;
+          else expected = outputRaw;
+        }
+
+        tests.push({
+          args,
+          expected,
+          description: `Example ${tests.length + 1}`,
+        });
+      } catch { /* skip malformed */ }
+    }
+  }
+  return tests;
+}
+
+function detectPattern(tags) {
+  if (!tags || tags.length === 0) return 'array-hashing';
+  // Prioritize more specific patterns over generic ones
+  const priority = ['trie', 'heap-priority-queue', 'backtracking', 'graph', 'topological-sort', 'union-find',
+    'sliding-window', 'binary-search', 'linked-list', 'tree', 'binary-tree', 'binary-search-tree',
+    'dynamic-programming', 'stack', 'monotonic-stack', 'two-pointers', 'greedy',
+    'bit-manipulation', 'interval', 'merge-intervals', 'math', 'geometry',
+    'hash-table', 'array', 'string'];
+  for (const tag of priority) {
+    if (tags.includes(tag) && TAG_TO_PATTERN[tag]) return TAG_TO_PATTERN[tag];
+  }
+  return 'array-hashing';
+}
+
+function generateSteps(title, difficulty, description) {
+  return [
+    {
+      title: 'Understand the Problem',
+      hint: `Read the problem carefully. What are the inputs and outputs? What constraints exist?`,
+      approach: `Break down "${title}" — identify the input types, output type, and edge cases from the examples.`,
+    },
+    {
+      title: 'Brute Force Approach',
+      hint: `What is the simplest way to solve this, even if slow?`,
+      approach: `Think about the most straightforward solution. Consider nested loops or trying all possibilities.`,
+      code: `// TODO: Write your brute force solution here`,
+      complexity: difficulty === 'Easy' ? 'Time: O(n^2), Space: O(1)' : difficulty === 'Medium' ? 'Time: O(n^2), Space: O(n)' : 'Time: O(2^n), Space: O(n)',
+    },
+    {
+      title: 'Optimal Approach',
+      hint: `Can you use a specific data structure or technique to improve the time complexity?`,
+      approach: `Look for patterns: can a hash map, two pointers, sorting, or dynamic programming help reduce complexity?`,
+      code: `// TODO: Write your optimal solution here`,
+      complexity: difficulty === 'Easy' ? 'Time: O(n), Space: O(n)' : difficulty === 'Medium' ? 'Time: O(n log n), Space: O(n)' : 'Time: O(n^2), Space: O(n)',
+    },
+  ];
+}
+
+function generateAnkiCards(title, pattern, difficulty) {
+  return [
+    {
+      front: `What pattern/technique is most useful for "${title}"?`,
+      back: `Pattern: ${pattern}\nDifficulty: ${difficulty}\n\nThink about the key data structure or algorithm that makes this problem efficient.`,
+    },
+    {
+      front: `What is the optimal time complexity for "${title}"?`,
+      back: `Consider the constraints and what the lower bound for the problem could be. A hash map gives O(1) lookups, sorting gives O(n log n), etc.`,
+    },
+  ];
+}
 
 export default function ImportProblem() {
   const navigate = useNavigate();
@@ -18,31 +152,14 @@ export default function ImportProblem() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const [form, setForm] = useState({
-    title: '',
-    leetcodeNumber: '',
-    difficulty: 'Medium',
-    pattern: 'array-hashing',
-    description: '',
-    starterCode: 'function solution() {\n  // Your code here\n  \n}',
-    steps: [
-      { title: 'Understand the Problem', hint: '', approach: '', code: '', complexity: '' },
-      { title: 'Brute Force Approach', hint: '', approach: '', code: '', complexity: '' },
-      { title: 'Optimal Approach', hint: '', approach: '', code: '', complexity: '' },
-    ],
-    testCases: [{ args: '', expected: '', description: '' }],
-    ankiCards: [{ front: '', back: '' }],
-  });
-
-  const [imported, setImported] = useState(false);
+  const [success, setSuccess] = useState(null);
 
   const parseSlug = (leetcodeUrl) => {
-    const match = leetcodeUrl.match(/leetcode\.com\/problems\/([^/]+)/);
+    const match = leetcodeUrl.match(/leetcode\.com\/problems\/([^/?#]+)/);
     return match ? match[1] : null;
   };
 
-  const handleFetch = async () => {
+  const handleImport = async () => {
     const slug = parseSlug(url);
     if (!slug) {
       setError('Invalid LeetCode URL. Example: https://leetcode.com/problems/two-sum/');
@@ -51,6 +168,7 @@ export default function ImportProblem() {
 
     setLoading(true);
     setError('');
+    setSuccess(null);
 
     try {
       const query = {
@@ -60,6 +178,7 @@ export default function ImportProblem() {
             title
             difficulty
             content
+            topicTags { slug }
             codeSnippets { lang langSlug code }
             exampleTestcaseList
           }
@@ -73,394 +192,162 @@ export default function ImportProblem() {
         body: JSON.stringify(query),
       });
 
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error('Failed to fetch from LeetCode');
 
       const data = await res.json();
       const q = data?.data?.question;
+      if (!q) throw new Error('Problem not found on LeetCode');
 
-      if (!q) throw new Error('Problem not found');
-
-      // Strip HTML tags from content
-      const desc = q.content
-        ? q.content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\n{3,}/g, '\n\n').trim()
-        : '';
-
+      const title = q.title;
+      const difficulty = q.difficulty;
+      const tags = q.topicTags?.map(t => t.slug) || [];
+      const patternId = detectPattern(tags);
+      const patternObj = patterns.find(p => p.id === patternId);
+      const description = q.content ? stripHtml(q.content) : '';
       const jsSnippet = q.codeSnippets?.find(s => s.langSlug === 'javascript');
+      const starterCode = jsSnippet?.code || `function solution() {\n  // Your code here\n}`;
 
-      setForm(prev => ({
-        ...prev,
-        title: q.title || prev.title,
-        leetcodeNumber: q.questionId || prev.leetcodeNumber,
-        difficulty: q.difficulty || prev.difficulty,
-        description: desc || prev.description,
-        starterCode: jsSnippet?.code || prev.starterCode,
-      }));
+      // Extract function name for test case parsing
+      const fnMatch = starterCode.match(/(?:var|const|let)?\s*(\w+)\s*=\s*function|function\s+(\w+)/);
+      const funcName = fnMatch ? (fnMatch[1] || fnMatch[2]) : 'solution';
 
-      setImported(true);
+      const testCases = parseTestCasesFromDescription(description, funcName);
+      const steps = generateSteps(title, difficulty, description);
+      const id = `custom-${slug}`;
+      const ankiCards = generateAnkiCards(title, patternObj?.name || patternId, difficulty)
+        .map((c, i) => ({ ...c, id: `${id}-card-${i}` }));
+
+      const problem = {
+        id,
+        title,
+        difficulty,
+        pattern: patternId,
+        leetcodeUrl: `https://leetcode.com/problems/${slug}/`,
+        leetcodeNumber: parseInt(q.questionId) || 0,
+        description,
+        starterCode,
+        steps,
+        testCases,
+        ankiCards,
+      };
+
+      addCustomProblem(problem);
+      setSuccess({ title, difficulty, pattern: patternObj?.name || patternId, testCases: testCases.length, id });
     } catch (e) {
-      // Fallback: extract what we can from the slug
-      const titleFromSlug = slug
-        .split('-')
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
+      // Fallback: create from slug alone
+      const titleFromSlug = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const id = `custom-${slug}`;
+      const steps = generateSteps(titleFromSlug, 'Medium', '');
+      const ankiCards = generateAnkiCards(titleFromSlug, 'array-hashing', 'Medium')
+        .map((c, i) => ({ ...c, id: `${id}-card-${i}` }));
 
-      setForm(prev => ({
-        ...prev,
+      const problem = {
+        id,
         title: titleFromSlug,
-      }));
+        difficulty: 'Medium',
+        pattern: 'array-hashing',
+        leetcodeUrl: `https://leetcode.com/problems/${slug}/`,
+        leetcodeNumber: 0,
+        description: '',
+        starterCode: `function solution() {\n  // Your code here\n}`,
+        steps,
+        testCases: [],
+        ankiCards,
+      };
 
-      setError('Could not auto-fetch from LeetCode (CORS). Title extracted from URL — fill in the rest manually.');
-      setImported(true);
+      addCustomProblem(problem);
+      setError('Could not fetch full details (CORS). Imported with defaults — you can solve it and fill in details later.');
+      setSuccess({ title: titleFromSlug, difficulty: 'Medium', pattern: 'Array & Hashing', testCases: 0, id });
     } finally {
       setLoading(false);
     }
   };
 
-  const updateStep = (idx, field, value) => {
-    setForm(prev => ({
-      ...prev,
-      steps: prev.steps.map((s, i) => i === idx ? { ...s, [field]: value } : s),
-    }));
-  };
-
-  const addStep = () => {
-    setForm(prev => ({
-      ...prev,
-      steps: [...prev.steps, { title: '', hint: '', approach: '', code: '', complexity: '' }],
-    }));
-  };
-
-  const removeStep = (idx) => {
-    setForm(prev => ({ ...prev, steps: prev.steps.filter((_, i) => i !== idx) }));
-  };
-
-  const updateTestCase = (idx, field, value) => {
-    setForm(prev => ({
-      ...prev,
-      testCases: prev.testCases.map((t, i) => i === idx ? { ...t, [field]: value } : t),
-    }));
-  };
-
-  const addTestCase = () => {
-    setForm(prev => ({
-      ...prev,
-      testCases: [...prev.testCases, { args: '', expected: '', description: '' }],
-    }));
-  };
-
-  const removeTestCase = (idx) => {
-    setForm(prev => ({ ...prev, testCases: prev.testCases.filter((_, i) => i !== idx) }));
-  };
-
-  const updateAnkiCard = (idx, field, value) => {
-    setForm(prev => ({
-      ...prev,
-      ankiCards: prev.ankiCards.map((c, i) => i === idx ? { ...c, [field]: value } : c),
-    }));
-  };
-
-  const addAnkiCard = () => {
-    setForm(prev => ({
-      ...prev,
-      ankiCards: [...prev.ankiCards, { front: '', back: '' }],
-    }));
-  };
-
-  const removeAnkiCard = (idx) => {
-    setForm(prev => ({ ...prev, ankiCards: prev.ankiCards.filter((_, i) => i !== idx) }));
-  };
-
-  const handleSubmit = () => {
-    if (!form.title.trim()) {
-      setError('Title is required.');
-      return;
-    }
-
-    const slug = form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const id = `custom-${slug}`;
-
-    // Parse test cases — user enters JSON arrays
-    const testCases = form.testCases
-      .filter(t => t.args.trim())
-      .map(t => {
-        try {
-          return {
-            args: JSON.parse(t.args),
-            expected: JSON.parse(t.expected),
-            description: t.description,
-          };
-        } catch {
-          return null;
-        }
-      })
-      .filter(Boolean);
-
-    const ankiCards = form.ankiCards
-      .filter(c => c.front.trim() && c.back.trim())
-      .map((c, i) => ({ id: `${id}-card-${i}`, front: c.front, back: c.back }));
-
-    const steps = form.steps
-      .filter(s => s.title.trim())
-      .map(s => {
-        const step = { title: s.title };
-        if (s.hint) step.hint = s.hint;
-        if (s.approach) step.approach = s.approach;
-        if (s.code) step.code = s.code;
-        if (s.complexity) step.complexity = s.complexity;
-        return step;
-      });
-
-    const problem = {
-      id,
-      title: form.title,
-      difficulty: form.difficulty,
-      pattern: form.pattern,
-      leetcodeUrl: url || `https://leetcode.com/problems/${slug}/`,
-      leetcodeNumber: parseInt(form.leetcodeNumber) || 0,
-      description: form.description,
-      starterCode: form.starterCode,
-      steps,
-      testCases,
-      ankiCards,
-    };
-
-    addCustomProblem(problem);
-    navigate(`/problem/${id}`);
-  };
-
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-white">Import Problem</h1>
         <p className="mt-1 text-sm sm:text-base text-gray-400">
-          Paste a LeetCode URL to auto-fill, then customize the breakdown.
+          Paste a LeetCode URL — we'll do the rest.
         </p>
       </div>
 
       {/* URL Input */}
-      <div className="mb-6 rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5">
+      <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 sm:p-6">
         <label className="mb-2 block text-sm font-medium text-gray-300">LeetCode URL</label>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://leetcode.com/problems/two-sum/"
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 py-2.5 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 outline-none focus:border-blue-500/50"
-            />
-          </div>
-          <button
-            onClick={handleFetch}
-            disabled={loading || !url.trim()}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 flex-shrink-0"
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-            Fetch
-          </button>
+        <div className="relative mb-4">
+          <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => { setUrl(e.target.value); setError(''); setSuccess(null); }}
+            onKeyDown={(e) => e.key === 'Enter' && !loading && url.trim() && handleImport()}
+            placeholder="https://leetcode.com/problems/two-sum/"
+            className="w-full rounded-lg border border-gray-700 bg-gray-800 py-3 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 outline-none focus:border-blue-500/50"
+          />
         </div>
-        {error && <p className="mt-2 text-xs text-yellow-400">{error}</p>}
-        {imported && !error && (
-          <p className="mt-2 flex items-center gap-1 text-xs text-green-400">
-            <CheckCircle2 className="h-3.5 w-3.5" /> Problem data imported. Review and customize below.
-          </p>
+
+        <button
+          onClick={handleImport}
+          disabled={loading || !url.trim()}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Fetching from LeetCode...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" />
+              Import Problem
+            </>
+          )}
+        </button>
+
+        {error && (
+          <div className="mt-4 flex items-start gap-2 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0 text-yellow-400 mt-0.5" />
+            <p className="text-xs text-yellow-300">{error}</p>
+          </div>
+        )}
+
+        {success && (
+          <div className="mt-4 rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-400" />
+              <span className="text-sm font-medium text-green-400">Imported successfully!</span>
+            </div>
+            <div className="space-y-1 text-xs text-gray-300">
+              <p><span className="text-gray-500">Title:</span> {success.title}</p>
+              <p><span className="text-gray-500">Difficulty:</span> <DiffBadge d={success.difficulty} /></p>
+              <p><span className="text-gray-500">Pattern:</span> {success.pattern}</p>
+              <p><span className="text-gray-500">Test cases:</span> {success.testCases} extracted</p>
+            </div>
+            <button
+              onClick={() => navigate(`/problem/${success.id}`)}
+              className="mt-4 w-full rounded-lg bg-green-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-700"
+            >
+              Start Solving
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Form */}
-      <div className="space-y-5">
-        {/* Basic Info */}
-        <Section title="Basic Info">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label="Title" value={form.title} onChange={v => setForm(p => ({ ...p, title: v }))} placeholder="Two Sum" />
-            <Field label="LeetCode #" value={form.leetcodeNumber} onChange={v => setForm(p => ({ ...p, leetcodeNumber: v }))} placeholder="1" />
-          </div>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-400">Difficulty</label>
-              <select
-                value={form.difficulty}
-                onChange={e => setForm(p => ({ ...p, difficulty: e.target.value }))}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 outline-none focus:border-blue-500/50"
-              >
-                <option>Easy</option>
-                <option>Medium</option>
-                <option>Hard</option>
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-400">Pattern</label>
-              <select
-                value={form.pattern}
-                onChange={e => setForm(p => ({ ...p, pattern: e.target.value }))}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 outline-none focus:border-blue-500/50"
-              >
-                {patterns.map(p => (
-                  <option key={p.id} value={p.id}>{p.icon} {p.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </Section>
-
-        {/* Description */}
-        <Section title="Description">
-          <TextArea
-            value={form.description}
-            onChange={v => setForm(p => ({ ...p, description: v }))}
-            placeholder="Given an array of integers nums and an integer target..."
-            rows={6}
-          />
-        </Section>
-
-        {/* Starter Code */}
-        <Section title="Starter Code">
-          <TextArea
-            value={form.starterCode}
-            onChange={v => setForm(p => ({ ...p, starterCode: v }))}
-            placeholder="function solution() { ... }"
-            rows={4}
-            mono
-          />
-        </Section>
-
-        {/* Steps */}
-        <Section title="Step-by-Step Breakdown">
-          <div className="space-y-4">
-            {form.steps.map((step, idx) => (
-              <div key={idx} className="rounded-lg border border-gray-800 bg-gray-800/30 p-3 sm:p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-400">Step {idx + 1}</span>
-                  {form.steps.length > 1 && (
-                    <button onClick={() => removeStep(idx)} className="text-gray-500 hover:text-red-400">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-                <Field label="Title" value={step.title} onChange={v => updateStep(idx, 'title', v)} placeholder="Understand the Problem" />
-                <div className="mt-2">
-                  <Field label="Hint" value={step.hint} onChange={v => updateStep(idx, 'hint', v)} placeholder="Think about..." />
-                </div>
-                <div className="mt-2">
-                  <TextArea label="Approach" value={step.approach} onChange={v => updateStep(idx, 'approach', v)} placeholder="Describe the approach..." rows={3} />
-                </div>
-                <div className="mt-2">
-                  <TextArea label="Code" value={step.code} onChange={v => updateStep(idx, 'code', v)} placeholder="function solution() { ... }" rows={4} mono />
-                </div>
-                <div className="mt-2">
-                  <Field label="Complexity" value={step.complexity} onChange={v => updateStep(idx, 'complexity', v)} placeholder="Time: O(n), Space: O(1)" />
-                </div>
-              </div>
-            ))}
-          </div>
-          <button onClick={addStep} className="mt-3 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
-            <Plus className="h-3.5 w-3.5" /> Add Step
-          </button>
-        </Section>
-
-        {/* Test Cases */}
-        <Section title="Test Cases">
-          <p className="mb-3 text-xs text-gray-500">Enter args and expected as JSON arrays. e.g. args: [[2,7,11,15], 9] expected: [0,1]</p>
-          <div className="space-y-3">
-            {form.testCases.map((tc, idx) => (
-              <div key={idx} className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-400">Test {idx + 1}</span>
-                  {form.testCases.length > 1 && (
-                    <button onClick={() => removeTestCase(idx)} className="text-gray-500 hover:text-red-400">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-                <Field label="Args (JSON)" value={tc.args} onChange={v => updateTestCase(idx, 'args', v)} placeholder='[[2,7,11,15], 9]' mono />
-                <div className="mt-2">
-                  <Field label="Expected (JSON)" value={tc.expected} onChange={v => updateTestCase(idx, 'expected', v)} placeholder='[0,1]' mono />
-                </div>
-                <div className="mt-2">
-                  <Field label="Description" value={tc.description} onChange={v => updateTestCase(idx, 'description', v)} placeholder="Basic case" />
-                </div>
-              </div>
-            ))}
-          </div>
-          <button onClick={addTestCase} className="mt-3 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
-            <Plus className="h-3.5 w-3.5" /> Add Test Case
-          </button>
-        </Section>
-
-        {/* Anki Cards */}
-        <Section title="Anki Flashcards (Optional)">
-          <div className="space-y-3">
-            {form.ankiCards.map((card, idx) => (
-              <div key={idx} className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-400">Card {idx + 1}</span>
-                  {form.ankiCards.length > 1 && (
-                    <button onClick={() => removeAnkiCard(idx)} className="text-gray-500 hover:text-red-400">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-                <Field label="Front (Question)" value={card.front} onChange={v => updateAnkiCard(idx, 'front', v)} placeholder="What pattern does Two Sum use?" />
-                <div className="mt-2">
-                  <Field label="Back (Answer)" value={card.back} onChange={v => updateAnkiCard(idx, 'back', v)} placeholder="Hash Map lookup for complement" />
-                </div>
-              </div>
-            ))}
-          </div>
-          <button onClick={addAnkiCard} className="mt-3 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
-            <Plus className="h-3.5 w-3.5" /> Add Card
-          </button>
-        </Section>
-
-        {/* Submit */}
+      {/* Import another */}
+      {success && (
         <button
-          onClick={handleSubmit}
-          className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          onClick={() => { setUrl(''); setSuccess(null); setError(''); }}
+          className="mt-4 w-full rounded-lg border border-gray-800 bg-gray-900 py-3 text-sm text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
         >
-          Import Problem
+          Import another problem
         </button>
-        <div className="h-8" />
-      </div>
+      )}
     </div>
   );
 }
 
-function Section({ title, children }) {
-  return (
-    <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5">
-      <h2 className="mb-3 text-sm font-semibold text-white">{title}</h2>
-      {children}
-    </div>
-  );
-}
-
-function Field({ label, value, onChange, placeholder, mono }) {
-  return (
-    <div>
-      {label && <label className="mb-1 block text-xs font-medium text-gray-400">{label}</label>}
-      <input
-        type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={`w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 outline-none focus:border-blue-500/50 ${mono ? 'font-mono text-xs' : ''}`}
-      />
-    </div>
-  );
-}
-
-function TextArea({ label, value, onChange, placeholder, rows = 3, mono }) {
-  return (
-    <div>
-      {label && <label className="mb-1 block text-xs font-medium text-gray-400">{label}</label>}
-      <textarea
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        rows={rows}
-        className={`w-full resize-y rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 outline-none focus:border-blue-500/50 ${mono ? 'font-mono text-xs' : ''}`}
-      />
-    </div>
-  );
+function DiffBadge({ d }) {
+  const c = { Easy: 'text-green-400', Medium: 'text-yellow-400', Hard: 'text-red-400' };
+  return <span className={c[d] || 'text-gray-400'}>{d}</span>;
 }
