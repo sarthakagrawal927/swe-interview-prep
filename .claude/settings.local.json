@@ -11,7 +11,14 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(gh auth status:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebSearch",
+      "WebFetch(domain:ai-sdk.dev)",
+      "WebFetch(domain:github.com)",
+      "Bash(git mv:*)",
+      "WebFetch(domain:api-docs.deepseek.com)",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:docs.litellm.ai)"
     ]
   }
 }

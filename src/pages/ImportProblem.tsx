@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProblems } from '../hooks/useProblems';
+import type { Problem } from '../types';
 import {
   Link2,
   CheckCircle2,
@@ -9,10 +10,14 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+const CORS_PROXIES = [
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
 
 // Map LeetCode topic tags to our pattern IDs
-const TAG_TO_PATTERN = {
+const TAG_TO_PATTERN: Record<string, string> = {
   'array': 'array-hashing', 'hash-table': 'array-hashing', 'string': 'array-hashing',
   'two-pointers': 'two-pointers', 'three-sum': 'two-pointers',
   'sliding-window': 'sliding-window',
@@ -31,7 +36,7 @@ const TAG_TO_PATTERN = {
   'bit-manipulation': 'bit-manipulation',
 };
 
-function stripHtml(html) {
+function stripHtml(html: string): string {
   return html
     .replace(/<pre[^>]*>/gi, '\n```\n')
     .replace(/<\/pre>/gi, '\n```\n')
@@ -47,9 +52,8 @@ function stripHtml(html) {
     .trim();
 }
 
-function parseTestCasesFromDescription(desc, funcName) {
-  const tests = [];
-  // Match patterns like: Input: nums = [2,7,11,15], target = 9 \n Output: [0,1]
+function parseTestCasesFromDescription(desc: string, _funcName: string) {
+  const tests: { args: any[]; expected: any; description: string }[] = [];
   const blocks = desc.split(/(?=\*?\*?Example\s*\d)/i);
   for (const block of blocks) {
     const inputMatch = block.match(/Input:\s*(.+?)(?:\n|Output)/s);
@@ -58,27 +62,22 @@ function parseTestCasesFromDescription(desc, funcName) {
       try {
         const inputRaw = inputMatch[1].trim();
         const outputRaw = outputMatch[1].trim();
-        // Parse "varName = value, varName2 = value2" format
         const argParts = inputRaw.split(/,\s*(?=\w+\s*=)/);
         const args = argParts.map(part => {
           const valMatch = part.match(/=\s*(.+)/);
           if (!valMatch) return part.trim();
-          let val = valMatch[1].trim();
-          // Try parsing as JSON
+          const val = valMatch[1].trim();
           try { return JSON.parse(val); } catch { }
-          // Handle quoted strings without JSON quotes
           if (/^".*"$/.test(val) || /^'.*'$/.test(val)) return val.slice(1, -1);
-          // Handle numbers
-          if (!isNaN(val)) return Number(val);
-          // Handle boolean
+          if (!isNaN(Number(val))) return Number(val);
           if (val === 'true') return true;
           if (val === 'false') return false;
           return val;
         });
 
-        let expected;
+        let expected: any;
         try { expected = JSON.parse(outputRaw); } catch {
-          if (!isNaN(outputRaw)) expected = Number(outputRaw);
+          if (!isNaN(Number(outputRaw))) expected = Number(outputRaw);
           else if (outputRaw === 'true') expected = true;
           else if (outputRaw === 'false') expected = false;
           else expected = outputRaw;
@@ -95,9 +94,8 @@ function parseTestCasesFromDescription(desc, funcName) {
   return tests;
 }
 
-function detectPattern(tags) {
+function detectPattern(tags: string[]): string {
   if (!tags || tags.length === 0) return 'array-hashing';
-  // Prioritize more specific patterns over generic ones
   const priority = ['trie', 'heap-priority-queue', 'backtracking', 'graph', 'topological-sort', 'union-find',
     'sliding-window', 'binary-search', 'linked-list', 'tree', 'binary-tree', 'binary-search-tree',
     'dynamic-programming', 'stack', 'monotonic-stack', 'two-pointers', 'greedy',
@@ -109,7 +107,7 @@ function detectPattern(tags) {
   return 'array-hashing';
 }
 
-function generateSteps(title, difficulty, description) {
+function generateSteps(title: string, difficulty: string, _description: string) {
   return [
     {
       title: 'Understand the Problem',
@@ -133,7 +131,7 @@ function generateSteps(title, difficulty, description) {
   ];
 }
 
-function generateAnkiCards(title, pattern, difficulty) {
+function generateAnkiCards(title: string, pattern: string, difficulty: string) {
   return [
     {
       front: `What pattern/technique is most useful for "${title}"?`,
@@ -146,15 +144,57 @@ function generateAnkiCards(title, pattern, difficulty) {
   ];
 }
 
+async function fetchLeetCodeProblem(slug: string): Promise<any> {
+  const query = {
+    query: `query getQuestionDetail($titleSlug: String!) {
+      question(titleSlug: $titleSlug) {
+        questionId
+        title
+        difficulty
+        content
+        topicTags { slug }
+        codeSnippets { lang langSlug code }
+        exampleTestcaseList
+      }
+    }`,
+    variables: { titleSlug: slug },
+  };
+
+  const leetcodeUrl = 'https://leetcode.com/graphql';
+
+  for (let i = 0; i < CORS_PROXIES.length; i++) {
+    const proxyUrl = CORS_PROXIES[i](leetcodeUrl);
+    try {
+      const res = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(query),
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data?.data?.question) return data;
+    } catch { /* try next proxy */ }
+  }
+  throw new Error('Could not fetch from LeetCode. All proxies failed.');
+}
+
+interface SuccessInfo {
+  title: string;
+  difficulty: string;
+  pattern: string;
+  testCases: number;
+  id: string;
+}
+
 export default function ImportProblem() {
   const navigate = useNavigate();
-  const { patterns, addCustomProblem } = useProblems();
+  const { patterns, getBySlug, addCustomProblem } = useProblems();
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(null);
+  const [success, setSuccess] = useState<SuccessInfo | null>(null);
 
-  const parseSlug = (leetcodeUrl) => {
+  const parseSlug = (leetcodeUrl: string): string | null => {
     const match = leetcodeUrl.match(/leetcode\.com\/problems\/([^/?#]+)/);
     return match ? match[1] : null;
   };
@@ -170,44 +210,27 @@ export default function ImportProblem() {
     setError('');
     setSuccess(null);
 
+    // Check if problem already exists in built-in or custom problems
+    const existing = getBySlug(slug);
+    if (existing) {
+      setLoading(false);
+      navigate(`/problem/${existing.id}`);
+      return;
+    }
+
     try {
-      const query = {
-        query: `query getQuestionDetail($titleSlug: String!) {
-          question(titleSlug: $titleSlug) {
-            questionId
-            title
-            difficulty
-            content
-            topicTags { slug }
-            codeSnippets { lang langSlug code }
-            exampleTestcaseList
-          }
-        }`,
-        variables: { titleSlug: slug },
-      };
-
-      const res = await fetch(CORS_PROXY + encodeURIComponent('https://leetcode.com/graphql'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(query),
-      });
-
-      if (!res.ok) throw new Error('Failed to fetch from LeetCode');
-
-      const data = await res.json();
-      const q = data?.data?.question;
-      if (!q) throw new Error('Problem not found on LeetCode');
+      const data = await fetchLeetCodeProblem(slug);
+      const q = data.data.question;
 
       const title = q.title;
       const difficulty = q.difficulty;
-      const tags = q.topicTags?.map(t => t.slug) || [];
+      const tags = q.topicTags?.map((t: any) => t.slug) || [];
       const patternId = detectPattern(tags);
       const patternObj = patterns.find(p => p.id === patternId);
       const description = q.content ? stripHtml(q.content) : '';
-      const jsSnippet = q.codeSnippets?.find(s => s.langSlug === 'javascript');
+      const jsSnippet = q.codeSnippets?.find((s: any) => s.langSlug === 'javascript');
       const starterCode = jsSnippet?.code || `function solution() {\n  // Your code here\n}`;
 
-      // Extract function name for test case parsing
       const fnMatch = starterCode.match(/(?:var|const|let)?\s*(\w+)\s*=\s*function|function\s+(\w+)/);
       const funcName = fnMatch ? (fnMatch[1] || fnMatch[2]) : 'solution';
 
@@ -217,7 +240,7 @@ export default function ImportProblem() {
       const ankiCards = generateAnkiCards(title, patternObj?.name || patternId, difficulty)
         .map((c, i) => ({ ...c, id: `${id}-card-${i}` }));
 
-      const problem = {
+      const problem: Problem = {
         id,
         title,
         difficulty,
@@ -233,7 +256,7 @@ export default function ImportProblem() {
 
       addCustomProblem(problem);
       setSuccess({ title, difficulty, pattern: patternObj?.name || patternId, testCases: testCases.length, id });
-    } catch (e) {
+    } catch (e: any) {
       // Fallback: create from slug alone
       const titleFromSlug = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       const id = `custom-${slug}`;
@@ -241,7 +264,7 @@ export default function ImportProblem() {
       const ankiCards = generateAnkiCards(titleFromSlug, 'array-hashing', 'Medium')
         .map((c, i) => ({ ...c, id: `${id}-card-${i}` }));
 
-      const problem = {
+      const problem: Problem = {
         id,
         title: titleFromSlug,
         difficulty: 'Medium',
@@ -347,7 +370,7 @@ export default function ImportProblem() {
   );
 }
 
-function DiffBadge({ d }) {
-  const c = { Easy: 'text-green-400', Medium: 'text-yellow-400', Hard: 'text-red-400' };
+function DiffBadge({ d }: { d: string }) {
+  const c: Record<string, string> = { Easy: 'text-green-400', Medium: 'text-yellow-400', Hard: 'text-red-400' };
   return <span className={c[d] || 'text-gray-400'}>{d}</span>;
 }
