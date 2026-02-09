@@ -4,61 +4,181 @@
       "id": "storage-retrieval",
       "name": "Storage & Retrieval",
       "description": "Systems focused on efficient data storage, retrieval, indexing, and URL/content management",
-      "icon": "💾"
+      "icon": "💾",
+      "resources": [
+        {
+          "title": "System Design Primer - Database",
+          "url": "https://github.com/donnemartin/system-design-primer#database",
+          "type": "article"
+        },
+        {
+          "title": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/",
+          "type": "docs"
+        }
+      ]
     },
     {
       "id": "social-media",
       "name": "Social Media & Feeds",
       "description": "Social platforms with feeds, timelines, content sharing, and user interactions",
-      "icon": "📱"
+      "icon": "📱",
+      "resources": [
+        {
+          "title": "System Design Primer",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "type": "article"
+        },
+        {
+          "title": "Design News Feed System",
+          "url": "https://www.geeksforgeeks.org/design-news-feed-system-system-design/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "messaging-realtime",
       "name": "Messaging & Real-Time",
       "description": "Real-time communication systems including chat, notifications, and live updates",
-      "icon": "🏗️"
+      "icon": "💬",
+      "resources": [
+        {
+          "title": "System Design Primer - Asynchronism",
+          "url": "https://github.com/donnemartin/system-design-primer#asynchronism",
+          "type": "article"
+        },
+        {
+          "title": "Design Chat System",
+          "url": "https://www.geeksforgeeks.org/design-facebook-messenger/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "streaming-media",
       "name": "Streaming & Media",
       "description": "Video/audio streaming, content delivery, and media processing pipelines",
-      "icon": "🎬"
+      "icon": "🎬",
+      "resources": [
+        {
+          "title": "System Design Primer - CDN",
+          "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
+          "type": "article"
+        },
+        {
+          "title": "Design YouTube",
+          "url": "https://www.geeksforgeeks.org/design-video-sharing-service-system-design/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "distributed-infra",
       "name": "Distributed Infrastructure",
       "description": "Core infrastructure components like caches, queues, rate limiters, and coordination services",
-      "icon": "🏗️"
+      "icon": "🌐",
+      "resources": [
+        {
+          "title": "System Design Primer - Cache",
+          "url": "https://github.com/donnemartin/system-design-primer#cache",
+          "type": "article"
+        },
+        {
+          "title": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/",
+          "type": "docs"
+        }
+      ]
     },
     {
       "id": "search-discovery",
       "name": "Search & Discovery",
       "description": "Search engines, autocomplete, recommendation systems, and content discovery",
-      "icon": "🔍"
+      "icon": "🔍",
+      "resources": [
+        {
+          "title": "System Design Primer",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "type": "article"
+        },
+        {
+          "title": "Design Search Autocomplete",
+          "url": "https://www.geeksforgeeks.org/design-autocomplete-or-typeahead-system/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "location-transport",
       "name": "Location & Transportation",
       "description": "Location-based services, mapping, ride-sharing, and delivery systems",
-      "icon": "🏗️"
+      "icon": "🗺️",
+      "resources": [
+        {
+          "title": "System Design Primer",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "type": "article"
+        },
+        {
+          "title": "Design Uber",
+          "url": "https://www.geeksforgeeks.org/system-design-of-uber-app-uber-system-architecture/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "ecommerce-payments",
       "name": "E-Commerce & Payments",
       "description": "Online marketplaces, payment processing, booking systems, and financial platforms",
-      "icon": "🏗️"
+      "icon": "🛒",
+      "resources": [
+        {
+          "title": "System Design Primer",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "type": "article"
+        },
+        {
+          "title": "Design Amazon",
+          "url": "https://www.geeksforgeeks.org/system-design-amazon-ecommerce-system/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "collaboration-productivity",
       "name": "Collaboration & Productivity",
       "description": "File sharing, collaborative editing, cloud storage, and productivity tools",
-      "icon": "📝"
+      "icon": "📝",
+      "resources": [
+        {
+          "title": "System Design Primer",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "type": "article"
+        },
+        {
+          "title": "Design Google Docs",
+          "url": "https://www.geeksforgeeks.org/design-google-docs-system-design/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "monitoring-analytics",
       "name": "Monitoring & Analytics",
       "description": "Logging, metrics collection, analytics pipelines, and observability platforms",
-      "icon": "🏗️"
+      "icon": "📊",
+      "resources": [
+        {
+          "title": "System Design Primer - Metrics",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "type": "article"
+        },
+        {
+          "title": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/",
+          "type": "docs"
+        }
+      ]
     }
   ],
   "problems": [

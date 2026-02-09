@@ -3,62 +3,187 @@
     {
       "id": "object-modeling",
       "name": "Object Modeling & Relationships",
-      "icon": "Boxes",
-      "description": "Core OOP design: identifying classes, attributes, methods, and relationships (has-a, is-a, uses-a)"
+      "icon": "📦",
+      "description": "Core OOP design: identifying classes, attributes, methods, and relationships (has-a, is-a, uses-a)",
+      "resources": [
+        {
+          "title": "What are Design Patterns?",
+          "url": "https://refactoring.guru/design-patterns",
+          "type": "article"
+        },
+        {
+          "title": "OOP Concepts in Java",
+          "url": "https://www.geeksforgeeks.org/object-oriented-programming-oops-concept-in-java/",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "state-management",
       "name": "State Machine & Lifecycle",
-      "icon": "ToggleLeft",
-      "description": "Systems where objects transition through well-defined states with specific triggers and guards"
+      "icon": "🔄",
+      "description": "Systems where objects transition through well-defined states with specific triggers and guards",
+      "resources": [
+        {
+          "title": "State Pattern",
+          "url": "https://refactoring.guru/design-patterns/state",
+          "type": "article"
+        },
+        {
+          "title": "State Design Pattern",
+          "url": "https://www.baeldung.com/java-state-design-pattern",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "strategy-pattern",
       "name": "Strategy & Policy",
-      "icon": "GitBranch",
-      "description": "Interchangeable algorithms or policies selected at runtime (pricing, allocation, scheduling)"
+      "icon": "🔀",
+      "description": "Interchangeable algorithms or policies selected at runtime (pricing, allocation, scheduling)",
+      "resources": [
+        {
+          "title": "Strategy Pattern",
+          "url": "https://refactoring.guru/design-patterns/strategy",
+          "type": "article"
+        },
+        {
+          "title": "Strategy Pattern in Java",
+          "url": "https://www.baeldung.com/java-strategy-pattern",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "observer-pattern",
       "name": "Observer & Event-Driven",
-      "icon": "Bell",
-      "description": "Publish-subscribe, event listeners, and notification systems with decoupled producers and consumers"
+      "icon": "🔔",
+      "description": "Publish-subscribe, event listeners, and notification systems with decoupled producers and consumers",
+      "resources": [
+        {
+          "title": "Observer Pattern",
+          "url": "https://refactoring.guru/design-patterns/observer",
+          "type": "article"
+        },
+        {
+          "title": "Observer Pattern in Java",
+          "url": "https://www.baeldung.com/java-observer-pattern",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "factory-creational",
       "name": "Factory & Creational",
-      "icon": "Factory",
-      "description": "Object creation patterns: Factory Method, Abstract Factory, Builder, Singleton, Prototype"
+      "icon": "🏭",
+      "description": "Object creation patterns: Factory Method, Abstract Factory, Builder, Singleton, Prototype",
+      "resources": [
+        {
+          "title": "Factory Method Pattern",
+          "url": "https://refactoring.guru/design-patterns/factory-method",
+          "type": "article"
+        },
+        {
+          "title": "Abstract Factory Pattern",
+          "url": "https://refactoring.guru/design-patterns/abstract-factory",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "decorator-structural",
       "name": "Decorator & Structural",
-      "icon": "Layers",
-      "description": "Composing objects to extend behavior dynamically: Decorator, Adapter, Composite, Proxy"
+      "icon": "🎭",
+      "description": "Composing objects to extend behavior dynamically: Decorator, Adapter, Composite, Proxy",
+      "resources": [
+        {
+          "title": "Decorator Pattern",
+          "url": "https://refactoring.guru/design-patterns/decorator",
+          "type": "article"
+        },
+        {
+          "title": "Adapter Pattern",
+          "url": "https://refactoring.guru/design-patterns/adapter",
+          "type": "article"
+        },
+        {
+          "title": "Proxy Pattern",
+          "url": "https://refactoring.guru/design-patterns/proxy",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "concurrency-design",
       "name": "Concurrency & Synchronization",
-      "icon": "Cpu",
-      "description": "Thread safety, locks, producer-consumer, connection pools, and concurrent data structures"
+      "icon": "⚡",
+      "description": "Thread safety, locks, producer-consumer, connection pools, and concurrent data structures",
+      "resources": [
+        {
+          "title": "Java Concurrency Guide",
+          "url": "https://www.baeldung.com/java-concurrency",
+          "type": "article"
+        },
+        {
+          "title": "Java Synchronization",
+          "url": "https://www.baeldung.com/java-synchronized",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "game-design",
       "name": "Game & Simulation Design",
-      "icon": "Gamepad2",
-      "description": "Turn-based or real-time game logic: board state, players, rules engine, move validation"
+      "icon": "🎮",
+      "description": "Turn-based or real-time game logic: board state, players, rules engine, move validation",
+      "resources": [
+        {
+          "title": "Game Programming Patterns",
+          "url": "https://gameprogrammingpatterns.com/",
+          "type": "article"
+        },
+        {
+          "title": "State Pattern for Games",
+          "url": "https://refactoring.guru/design-patterns/state",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "booking-inventory",
       "name": "Booking & Inventory Systems",
-      "icon": "CalendarCheck",
-      "description": "Reservation management, availability tracking, conflict detection, and capacity planning"
+      "icon": "📅",
+      "description": "Reservation management, availability tracking, conflict detection, and capacity planning",
+      "resources": [
+        {
+          "title": "Builder Pattern",
+          "url": "https://refactoring.guru/design-patterns/builder",
+          "type": "article"
+        },
+        {
+          "title": "Repository Pattern in Java",
+          "url": "https://www.baeldung.com/java-dao-pattern",
+          "type": "article"
+        }
+      ]
     },
     {
       "id": "command-chain",
       "name": "Command & Chain of Responsibility",
-      "icon": "Link",
-      "description": "Encapsulating requests as objects, undo/redo, and passing requests through handler chains"
+      "icon": "⛓️",
+      "description": "Encapsulating requests as objects, undo/redo, and passing requests through handler chains",
+      "resources": [
+        {
+          "title": "Command Pattern",
+          "url": "https://refactoring.guru/design-patterns/command",
+          "type": "article"
+        },
+        {
+          "title": "Chain of Responsibility",
+          "url": "https://refactoring.guru/design-patterns/chain-of-responsibility",
+          "type": "article"
+        }
+      ]
     }
   ],
   "problems": [
