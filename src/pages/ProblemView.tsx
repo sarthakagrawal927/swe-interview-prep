@@ -224,7 +224,7 @@ export default function ProblemView() {
                   onAskAI={() => setShowAI(!showAI)}
                   showAI={showAI}
                   editorMode={editorMode}
-                  onToggleMode={() => setEditorMode(m => m === 'code' ? 'diagram' : 'code')}
+                  onToggleMode={category === 'hld' ? () => setEditorMode(m => m === 'code' ? 'diagram' : 'code') : undefined}
                 />
                 <div className="flex-1 min-h-0">
                   {editorMode === 'diagram' ? (
