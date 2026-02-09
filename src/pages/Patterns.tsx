@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useProblems } from '../hooks/useProblems';
 import { useProgress } from '../hooks/useProgress';
 import { useCategory } from '../contexts/CategoryContext';
@@ -19,8 +19,12 @@ export default function Patterns() {
   const catConfig = getCategoryConfig(category);
   const { patterns, problems, getByPattern, search } = useProblems(category);
   const { getStatus } = useProgress();
+  const [searchParams] = useSearchParams();
+  const expandPattern = searchParams.get('pattern');
   const [query, setQuery] = useState('');
-  const [expandedPatterns, setExpandedPatterns] = useState({});
+  const [expandedPatterns, setExpandedPatterns] = useState(() =>
+    expandPattern ? { [expandPattern]: true } : {}
+  );
 
   const togglePattern = (patternId) => {
     setExpandedPatterns(prev => ({

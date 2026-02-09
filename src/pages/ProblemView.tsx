@@ -379,14 +379,18 @@ export default function ProblemView() {
 
 /** Problem title, difficulty, pattern, leetcode link, status */
 function ProblemHeader({ problem, pattern, status }) {
+  const { category } = useCategory();
   return (
     <div className="mb-4">
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <DifficultyBadge difficulty={problem.difficulty} />
         {pattern && (
-          <span className="rounded-full bg-gray-800 px-2.5 py-0.5 text-xs text-gray-400">
+          <Link
+            to={`/${category}/patterns?pattern=${pattern.id}`}
+            className="rounded-full bg-gray-800 px-2.5 py-0.5 text-xs text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors"
+          >
             {pattern.icon} {pattern.name}
-          </span>
+          </Link>
         )}
         {(status === 'solved' || status === 'mastered') && (
           <span className="flex items-center gap-1 rounded-full bg-green-400/10 px-2.5 py-0.5 text-xs text-green-400">
