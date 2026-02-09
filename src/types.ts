@@ -7,7 +7,7 @@ export interface CategoryConfig {
   name: string;
   icon: string;
   description: string;
-  color: string; // tailwind color prefix e.g. "blue", "purple"
+  color: string;
   hasCodeEditor: boolean;
   hasTestCases: boolean;
 }
@@ -23,7 +23,7 @@ export function getCategoryConfig(id: InterviewCategory): CategoryConfig {
   return CATEGORIES.find(c => c.id === id)!;
 }
 
-// ─── Shared Types ───────────────────────────────────────────────────────────
+// ─── Core Types ─────────────────────────────────────────────────────────────
 
 export interface Pattern {
   id: string;
@@ -68,106 +68,47 @@ export interface SimilarQuestion {
   difficulty: string;
 }
 
-// ─── DSA Problem ────────────────────────────────────────────────────────────
+// ─── Unified Problem Type ───────────────────────────────────────────────────
+// Single type used across all categories. Category-specific fields are optional.
 
 export interface Problem {
   id: string;
   title: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   pattern: string;
+  description: string;
   category?: InterviewCategory;
+  steps: Step[];
+  ankiCards: AnkiCard[];
+  // DSA-specific
   leetcodeUrl?: string;
-  leetcodeNumber: number;
-  description: string;
-  starterCode: string;
-  steps: Step[];
-  testCases: TestCase[];
-  ankiCards: AnkiCard[];
-  similarQuestions?: SimilarQuestion[];
-}
-
-// ─── LLD Problem ────────────────────────────────────────────────────────────
-
-export interface LLDProblem {
-  id: string;
-  title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  pattern: string;
-  category: 'lld';
-  description: string;
-  requirements: string[];
-  keyClasses: string[];
-  designPatterns: string[];
+  leetcodeNumber?: number;
   starterCode?: string;
+  testCases?: TestCase[];
+  similarQuestions?: SimilarQuestion[];
+  // LLD-specific
+  requirements?: string[];
+  keyClasses?: string[];
+  designPatterns?: string[];
   solutionCode?: string;
-  steps: Step[];
-  ankiCards: AnkiCard[];
+  // HLD-specific
+  keyComponents?: string[];
+  concepts?: string[];
+  // Behavioral-specific
+  question?: string; // the interview question text
+  assessing?: string;
+  starHints?: { situation: string; task: string; action: string; result: string };
+  tips?: string[];
 }
 
-// ─── HLD Problem ────────────────────────────────────────────────────────────
-
-export interface HLDProblem {
-  id: string;
-  title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  pattern: string;
-  category: 'hld';
-  description: string;
-  requirements: string[];
-  keyComponents: string[];
-  concepts: string[];
-  steps: Step[];
-  ankiCards: AnkiCard[];
-}
-
-// ─── Behavioral Question ────────────────────────────────────────────────────
-
-export interface BehavioralQuestion {
-  id: string;
-  question: string;
-  title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  pattern: string; // category name like "Leadership"
-  category: 'behavioral';
-  description: string;
-  assessing: string;
-  starHints: {
-    situation: string;
-    task: string;
-    action: string;
-    result: string;
-  };
-  tips: string[];
-  ankiCards: AnkiCard[];
-}
-
-// ─── Union type for any problem across categories ───────────────────────────
-
-export type AnyProblem = Problem | LLDProblem | HLDProblem | BehavioralQuestion;
-
-// ─── Data container (per category) ──────────────────────────────────────────
+// ─── Data container (shared across all categories) ──────────────────────────
 
 export interface ProblemsData {
   patterns: Pattern[];
   problems: Problem[];
 }
 
-export interface LLDData {
-  patterns: Pattern[];
-  problems: LLDProblem[];
-}
-
-export interface HLDData {
-  patterns: Pattern[];
-  problems: HLDProblem[];
-}
-
-export interface BehavioralData {
-  categories: Pattern[];
-  questions: BehavioralQuestion[];
-}
-
-// ─── Progress / Review (shared across all categories) ───────────────────────
+// ─── Progress / Review ──────────────────────────────────────────────────────
 
 export interface ProgressEntry {
   status?: string;

@@ -1,10 +1,25 @@
-import { useMemo, useCallback, useSyncExternalStore, useEffect } from 'react';
-import data from '../data/problems.json';
-import type { Problem, AnkiCardWithMeta, ProblemsData } from '../types';
+import React, { useMemo, useCallback, useSyncExternalStore, useEffect } from 'react';
+import dsaData from '../data/problems.json';
+import type { Problem, AnkiCardWithMeta, ProblemsData, InterviewCategory } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
-const typedData = data as ProblemsData;
+// Lazy-load category data (only DSA is bundled, others loaded on demand)
+const dataCache: Record<string, ProblemsData> = {
+  dsa: dsaData as ProblemsData,
+};
+
+async function loadCategoryData(category: InterviewCategory): Promise<ProblemsData> {
+  if (dataCache[category]) return dataCache[category];
+  try {
+    const mod = await import(`../data/${category}-problems.json`);
+    dataCache[category] = mod.default as ProblemsData;
+    return dataCache[category];
+  } catch {
+    // Category data not yet available
+    return { patterns: [], problems: [] };
+  }
+}
 
 // Shared module-level store so custom problems persist across all components
 let customProblemsStore: Problem[] = [];
@@ -29,10 +44,18 @@ function addToStore(problem: Problem) {
   listeners.forEach(cb => cb());
 }
 
-export function useProblems() {
-  const { patterns } = typedData;
+export function useProblems(category: InterviewCategory = 'dsa') {
   const { user } = useAuth();
   const customProblems = useSyncExternalStore(subscribe, getSnapshot);
+
+  // State for async-loaded category data
+  const [categoryData, setCategoryData] = React.useState<ProblemsData>(
+    dataCache[category] || { patterns: [], problems: [] }
+  );
+
+  useEffect(() => {
+    loadCategoryData(category).then(setCategoryData);
+  }, [category]);
 
   // Load imported problems from Supabase on mount
   useEffect(() => {
@@ -49,30 +72,33 @@ export function useProblems() {
       });
   }, [user]);
 
+  const { patterns } = categoryData;
+
   const problems = useMemo(() => {
-    const builtIn = typedData.problems;
+    const builtIn = categoryData.problems;
+    // Only merge custom problems for the matching category
+    const relevant = customProblems.filter(p => (p.category || 'dsa') === category);
     const seen = new Set(builtIn.map(p => p.id));
     const merged = [...builtIn];
-    for (const cp of customProblems) {
+    for (const cp of relevant) {
       if (!seen.has(cp.id)) {
         merged.push(cp);
         seen.add(cp.id);
       }
     }
     return merged;
-  }, [customProblems]);
+  }, [categoryData, customProblems, category]);
 
   const addCustomProblem = useCallback((problem: Problem) => {
-    addToStore(problem);
-    // Persist to Supabase
+    addToStore({ ...problem, category });
     if (user) {
       supabase.from('user_imported_problems').upsert({
         user_id: user.id,
         problem_id: problem.id,
-        problem_data: problem,
+        problem_data: { ...problem, category },
       }).then();
     }
-  }, [user]);
+  }, [user, category]);
 
   const getById = (id: string): Problem | null => {
     return problems.find(p => p.id === id) || null;
@@ -128,3 +154,4 @@ export function useProblems() {
 
   return { patterns, problems, getById, getBySlug, getByPattern, search, getPatternStats, getAllAnkiCards, addCustomProblem };
 }
+

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProblems } from '../hooks/useProblems';
 import { useProgress } from '../hooks/useProgress';
+import { useCategory } from '../contexts/CategoryContext';
+import { getCategoryConfig } from '../types';
 import {
   Search,
   ChevronDown,
@@ -13,7 +15,9 @@ import {
 } from 'lucide-react';
 
 export default function Patterns() {
-  const { patterns, problems, getByPattern, search } = useProblems();
+  const { category } = useCategory();
+  const catConfig = getCategoryConfig(category);
+  const { patterns, problems, getByPattern, search } = useProblems(category);
   const { getStatus } = useProgress();
   const [query, setQuery] = useState('');
   const [expandedPatterns, setExpandedPatterns] = useState({});
@@ -38,9 +42,9 @@ export default function Patterns() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">Pattern Browser</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">{catConfig.name} Patterns</h1>
         <p className="mt-1 text-sm sm:text-base text-gray-400">
-          Master DSA patterns one at a time. Click a pattern to see its problems.
+          Master {catConfig.description.toLowerCase()} one pattern at a time.
         </p>
       </div>
 
@@ -123,7 +127,7 @@ export default function Patterns() {
                     return (
                       <Link
                         key={problem.id}
-                        to={`/problem/${problem.id}`}
+                        to={`/${category}/problem/${problem.id}`}
                         className={`flex items-center justify-between px-4 sm:px-5 py-3 transition-colors hover:bg-gray-800/50 ${
                           idx < patternProblems.length - 1
                             ? 'border-b border-gray-800/50'
@@ -139,7 +143,7 @@ export default function Patterns() {
                             <BookOpen className="h-4 w-4 flex-shrink-0 text-gray-500" />
                           )}
                           <span className="text-sm text-gray-200 truncate">
-                            {problem.leetcodeNumber}. {problem.title}
+                            {problem.leetcodeNumber ? `${problem.leetcodeNumber}. ` : ''}{problem.title}
                           </span>
                         </div>
 

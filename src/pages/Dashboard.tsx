@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useProblems } from '../hooks/useProblems';
 import { useProgress } from '../hooks/useProgress';
 import { useSpacedRepetition } from '../hooks/useSpacedRepetition';
+import { useCategory } from '../contexts/CategoryContext';
+import { getCategoryConfig } from '../types';
 import {
   Trophy,
   Brain,
@@ -14,7 +16,9 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { patterns, problems, getPatternStats, getAllAnkiCards } = useProblems();
+  const { category } = useCategory();
+  const config = getCategoryConfig(category);
+  const { patterns, problems, getPatternStats, getAllAnkiCards } = useProblems(category);
   const { getStats, getStatus } = useProgress();
   const { getReviewStats, getDueCards } = useSpacedRepetition();
 
@@ -31,9 +35,9 @@ export default function Dashboard() {
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       {/* Welcome Section */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">Welcome back</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">{config.name} Dashboard</h1>
         <p className="mt-1 text-sm sm:text-base text-gray-400">
-          Track your progress and keep your streak going.
+          {config.description} — track your progress and keep your streak going.
         </p>
       </div>
 
@@ -75,7 +79,7 @@ export default function Dashboard() {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-semibold text-white">Patterns</h2>
             <Link
-              to="/patterns"
+              to={`/${category}/patterns`}
               className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
             >
               View all <ArrowRight className="h-4 w-4" />
@@ -92,7 +96,7 @@ export default function Dashboard() {
               return (
                 <Link
                   key={pattern.id}
-                  to="/patterns"
+                  to={`/${category}/patterns`}
                   className="group rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4 transition-all hover:border-gray-700 hover:bg-gray-800/80"
                 >
                   <div className="mb-2 text-2xl">{pattern.icon}</div>
@@ -122,7 +126,7 @@ export default function Dashboard() {
                 due for review today.
               </p>
               <Link
-                to="/anki"
+                to={`/${category}/review`}
                 className="inline-flex items-center gap-2 rounded-lg bg-purple-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600"
               >
                 Start Review <ArrowRight className="h-4 w-4" />
@@ -137,7 +141,7 @@ export default function Dashboard() {
               {recentProblems.map(problem => (
                 <Link
                   key={problem.id}
-                  to={`/problem/${problem.id}`}
+                  to={`/${category}/problem/${problem.id}`}
                   className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900 px-3 sm:px-4 py-3 transition-all hover:border-gray-700 hover:bg-gray-800/80"
                 >
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
