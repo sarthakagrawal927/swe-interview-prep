@@ -757,6 +757,7 @@ function AIPanel({ ai, problem, code, language, selectedCode, diagramElements, e
                 placeholder="sk-..."
                 className="w-full rounded-lg border border-gray-700/80 bg-gray-900 px-3 py-2.5 text-sm text-gray-200 placeholder-gray-600 outline-none focus:border-purple-500/50 transition-colors"
               />
+              <p className="mt-1.5 text-[10px] text-gray-600">Stored locally in your browser. Never sent to our servers.</p>
             </div>
           )}
           <button
