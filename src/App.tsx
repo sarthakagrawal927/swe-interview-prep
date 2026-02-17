@@ -8,6 +8,8 @@ import Patterns from './pages/Patterns';
 import ProblemView from './pages/ProblemView';
 import AnkiReview from './pages/AnkiReview';
 import ImportProblem from './pages/ImportProblem';
+import Library from './pages/Library';
+import RepoView from './pages/RepoView';
 import Login from './pages/Login';
 
 function CategoryRoutes() {
@@ -43,6 +45,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="library" element={<Library />} />
+        <Route path="library/:repoSlug" element={<RepoView />} />
         <Route path=":category/*" element={<CategoryRoutes />} />
         {/* Legacy routes redirect to DSA */}
         <Route path="patterns" element={<Navigate to="/dsa/patterns" replace />} />

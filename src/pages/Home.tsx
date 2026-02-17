@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Code2, Boxes, Network, Users, ArrowRight } from 'lucide-react';
+import { Code2, Boxes, Network, Users, ArrowRight, BookOpen } from 'lucide-react';
 import { CATEGORIES } from '../types';
 
 const ICONS = { Code2, Boxes, Network, Users };
@@ -44,6 +44,20 @@ export default function Home() {
           );
         })}
       </div>
+
+      <Link
+        to="/library"
+        className="group relative overflow-hidden rounded-2xl border border-emerald-500/30 hover:border-emerald-500/50 bg-gray-900 p-6 sm:p-8 transition-all hover:bg-gray-800/80 mt-4 sm:mt-6"
+      >
+        <div className="mb-4 inline-flex rounded-xl bg-emerald-500/10 p-3">
+          <BookOpen className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-400" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-white">Library</h2>
+        <p className="mt-1 text-sm text-gray-400">Browse curated learning repos with interactive exercises</p>
+        <div className="mt-4 flex items-center gap-1 text-sm font-medium text-emerald-400">
+          Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </div>
+      </Link>
     </div>
   );
 }
