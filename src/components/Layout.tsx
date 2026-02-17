@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation, useParams } from 'react-router-dom';
-import { LayoutDashboard, Grid3X3, Brain, PlusCircle, Code2, LogOut, LogIn, Home, Boxes, Network, Users } from 'lucide-react';
+import { LayoutDashboard, Grid3X3, Brain, PlusCircle, Code2, LogOut, LogIn, Home, Boxes, Network, Users, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { CATEGORIES, getCategoryConfig } from '../types';
 import type { InterviewCategory } from '../types';
@@ -131,6 +131,18 @@ export default function Layout() {
                   </NavLink>
                 </div>
               )}
+
+              <NavLink
+                to="/library"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                  }`
+                }
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Library</span>
+              </NavLink>
 
               {/* User info */}
               <div className="flex items-center gap-2 border-l border-gray-800 pl-2 sm:pl-3">

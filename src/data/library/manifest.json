@@ -1,0 +1,191 @@
+{
+  "repos": [
+    {
+      "id": "javascript-questions",
+      "name": "JavaScript Interview Questions",
+      "source": "https://github.com/sudheerj/javascript-interview-questions",
+      "description": "478+ JavaScript interview questions with answers",
+      "tags": [
+        "javascript",
+        "interview",
+        "frontend"
+      ],
+      "icon": "FileCode2",
+      "sectionCount": 478,
+      "exerciseCount": 478,
+      "lastFetched": "2026-02-17T17:53:01.919Z"
+    },
+    {
+      "id": "react-questions",
+      "name": "React Interview Questions",
+      "source": "https://github.com/sudheerj/reactjs-interview-questions",
+      "description": "318+ React interview questions with answers",
+      "tags": [
+        "react",
+        "interview",
+        "frontend"
+      ],
+      "icon": "Atom",
+      "sectionCount": 405,
+      "exerciseCount": 405,
+      "lastFetched": "2026-02-17T17:53:04.767Z"
+    },
+    {
+      "id": "frontend-handbook",
+      "name": "Frontend Interview Handbook",
+      "source": "https://github.com/yangshun/front-end-interview-handbook",
+      "description": "Structured frontend interview preparation guide",
+      "tags": [
+        "frontend",
+        "interview",
+        "html",
+        "css",
+        "javascript"
+      ],
+      "icon": "Layout",
+      "sectionCount": 17,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:12.138Z"
+    },
+    {
+      "id": "system-design",
+      "name": "System Design",
+      "source": "https://github.com/karanpratapsingh/system-design",
+      "description": "System design fundamentals and case studies",
+      "tags": [
+        "system-design",
+        "architecture",
+        "distributed-systems"
+      ],
+      "icon": "Network",
+      "sectionCount": 4,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:15.112Z"
+    },
+    {
+      "id": "system-design-101",
+      "name": "System Design 101",
+      "source": "https://github.com/ByteByteGoHq/system-design-101",
+      "description": "Visual system design explanations by ByteByteGo",
+      "tags": [
+        "system-design",
+        "bytebytego",
+        "visual"
+      ],
+      "icon": "Image",
+      "sectionCount": 5,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:16.745Z"
+    },
+    {
+      "id": "low-level-design",
+      "name": "Awesome Low-Level Design",
+      "source": "https://github.com/ashishps1/awesome-low-level-design",
+      "description": "40+ LLD problems with design patterns",
+      "tags": [
+        "lld",
+        "oop",
+        "design-patterns"
+      ],
+      "icon": "Boxes",
+      "sectionCount": 227,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:20.895Z"
+    },
+    {
+      "id": "grokking-oop",
+      "name": "Grokking OOP Design",
+      "source": "https://github.com/tssovi/grokking-the-object-oriented-design-interview",
+      "description": "Object-oriented design interview problems",
+      "tags": [
+        "oop",
+        "design",
+        "uml"
+      ],
+      "icon": "Boxes",
+      "sectionCount": 15,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:25.403Z"
+    },
+    {
+      "id": "devops-exercises",
+      "name": "DevOps Exercises",
+      "source": "https://github.com/bregman-arie/devops-exercises",
+      "description": "2600+ DevOps exercises covering all major topics",
+      "tags": [
+        "devops",
+        "linux",
+        "docker",
+        "kubernetes",
+        "cloud"
+      ],
+      "icon": "Terminal",
+      "sectionCount": 55,
+      "exerciseCount": 1888,
+      "lastFetched": "2026-02-17T17:53:28.363Z"
+    },
+    {
+      "id": "coding-interview-patterns",
+      "name": "Coding Interview Patterns",
+      "source": "https://github.com/ByteByteGoHq/coding-interview-patterns",
+      "description": "101 coding problems by ByteByteGo in 6 languages",
+      "tags": [
+        "algorithms",
+        "bytebytego",
+        "coding",
+        "patterns"
+      ],
+      "icon": "Code2",
+      "sectionCount": 3,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:29.743Z"
+    },
+    {
+      "id": "ood-interview",
+      "name": "OOD Interview",
+      "source": "https://github.com/ByteByteGoHq/ood-interview",
+      "description": "11 OOP design projects with runnable Java code",
+      "tags": [
+        "oop",
+        "java",
+        "bytebytego",
+        "design"
+      ],
+      "icon": "Braces",
+      "sectionCount": 13,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:30.833Z"
+    },
+    {
+      "id": "system-design-primer",
+      "name": "System Design Primer",
+      "source": "https://github.com/donnemartin/system-design-primer",
+      "description": "Learn large-scale system design with Anki flashcards",
+      "tags": [
+        "system-design",
+        "scalability",
+        "architecture"
+      ],
+      "icon": "Server",
+      "sectionCount": 14,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:34.420Z"
+    },
+    {
+      "id": "javascript-algorithms",
+      "name": "JavaScript Algorithms",
+      "source": "https://github.com/trekhleb/javascript-algorithms",
+      "description": "Algorithms and data structures in JavaScript",
+      "tags": [
+        "algorithms",
+        "data-structures",
+        "javascript"
+      ],
+      "icon": "Binary",
+      "sectionCount": 130,
+      "exerciseCount": 0,
+      "lastFetched": "2026-02-17T17:53:37.367Z"
+    }
+  ],
+  "generatedAt": "2026-02-17T17:52:59.208Z"
+}
