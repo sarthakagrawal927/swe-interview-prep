@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown, FileText } from 'lucide-react';
 import type { Section } from '../adapters/types';
 
@@ -6,6 +6,12 @@ interface SectionTreeProps {
   sections: Section[];
   activeSectionId: string | null;
   onSelect: (section: Section) => void;
+}
+
+function containsActiveId(section: Section, activeId: string | null): boolean {
+  if (!activeId) return false;
+  if (section.id === activeId) return true;
+  return section.children?.some(c => containsActiveId(c, activeId)) ?? false;
 }
 
 function SectionNode({
@@ -19,9 +25,18 @@ function SectionNode({
   activeSectionId: string | null;
   onSelect: (section: Section) => void;
 }) {
-  const [expanded, setExpanded] = useState(depth < 1);
   const hasChildren = section.children && section.children.length > 0;
   const isActive = section.id === activeSectionId;
+  const [expanded, setExpanded] = useState(
+    depth < 1 || containsActiveId(section, activeSectionId)
+  );
+
+  // Auto-expand when active section changes to be within this node
+  useEffect(() => {
+    if (hasChildren && containsActiveId(section, activeSectionId)) {
+      setExpanded(true);
+    }
+  }, [activeSectionId, hasChildren, section]);
 
   return (
     <div>

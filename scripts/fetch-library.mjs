@@ -37,6 +37,95 @@ function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+/** Split large markdown content into sub-sections by # and ## headings */
+function splitByHeadings(content, parentId) {
+  // First try two-level split: # for groups, ## for items within groups
+  const h1Parts = content.split(/^(?=# [^#])/m);
+
+  if (h1Parts.length > 2) {
+    // Has multiple # headings — create hierarchical structure
+    const children = [];
+    let introContent = '';
+
+    for (const h1Part of h1Parts) {
+      const trimmed = h1Part.trim();
+      if (!trimmed) continue;
+
+      const h1Match = trimmed.match(/^# (.+)/);
+      if (!h1Match) {
+        introContent = trimmed;
+        continue;
+      }
+
+      const h1Title = h1Match[1].trim();
+      const h1Id = `${parentId}-${slugify(h1Title)}`;
+
+      // Split this h1 section by ## headings
+      const h2Parts = trimmed.split(/^(?=## [^#])/m);
+      if (h2Parts.length > 1) {
+        const h2Children = [];
+        let h1Content = '';
+        for (const h2Part of h2Parts) {
+          const h2Trimmed = h2Part.trim();
+          if (!h2Trimmed) continue;
+          const h2Match = h2Trimmed.match(/^## (.+)/);
+          if (h2Match) {
+            h2Children.push({
+              id: `${h1Id}-${slugify(h2Match[1].trim())}`,
+              title: h2Match[1].trim(),
+              content: h2Trimmed,
+            });
+          } else {
+            h1Content = h2Trimmed;
+          }
+        }
+        children.push({
+          id: h1Id,
+          title: h1Title,
+          content: h1Content,
+          children: h2Children.length > 0 ? h2Children : undefined,
+        });
+      } else {
+        children.push({
+          id: h1Id,
+          title: h1Title,
+          content: trimmed,
+        });
+      }
+    }
+
+    if (children.length >= 2) return { introContent, children };
+  }
+
+  // Fallback: flat split on ## headings only
+  const h2Parts = content.split(/^(?=## [^#])/m);
+  if (h2Parts.length <= 1) return null;
+
+  const children = [];
+  let introContent = '';
+
+  for (const part of h2Parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+
+    const headingMatch = trimmed.match(/^## (.+)/);
+    if (headingMatch) {
+      children.push({
+        id: `${parentId}-${slugify(headingMatch[1].trim())}`,
+        title: headingMatch[1].trim(),
+        content: trimmed,
+      });
+    } else {
+      introContent = trimmed;
+    }
+  }
+
+  if (children.length < 2) return null;
+  return { introContent, children };
+}
+
+const LARGE_FILE_THRESHOLD = 20000; // 20KB
+
 function buildSectionTree(files) {
   const mdFiles = files
     .filter(f => f.path.endsWith('.md') || f.path.endsWith('.rst'))
@@ -49,12 +138,29 @@ function buildSectionTree(files) {
     const parts = file.path.split('/');
     const fileName = parts[parts.length - 1];
     const title = fileName.replace(/\.(md|rst)$/, '').replace(/[-_]/g, ' ');
+    const sectionId = slugify(file.path);
+    const sectionTitle = title === 'README' ? (parts.length > 1 ? parts[parts.length - 2].replace(/[-_]/g, ' ') : 'Overview') : title;
 
-    const section = {
-      id: slugify(file.path),
-      title: title === 'README' ? (parts.length > 1 ? parts[parts.length - 2].replace(/[-_]/g, ' ') : 'Overview') : title,
-      content: file.content,
-    };
+    // For large files, try to split by ## headings
+    let section;
+    if (file.content.length > LARGE_FILE_THRESHOLD) {
+      const split = splitByHeadings(file.content, sectionId);
+      if (split) {
+        section = {
+          id: sectionId,
+          title: sectionTitle,
+          content: split.introContent,
+          children: split.children,
+        };
+      }
+    }
+    if (!section) {
+      section = {
+        id: sectionId,
+        title: sectionTitle,
+        content: file.content,
+      };
+    }
 
     if (parts.length === 1) {
       root.push(section);

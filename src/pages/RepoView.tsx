@@ -14,26 +14,33 @@ import MarkdownViewer from '../components/MarkdownViewer';
 import ExerciseRunner from '../components/ExerciseRunner';
 import type { Section } from '../adapters/types';
 
-const SKIP_TITLES = /^(contribut|code.of.conduct|license|changelog|security|funding|backers|sponsors)/i;
+const SKIP_TITLES = /^(contribut|code.of.conduct|license|changelog|security|funding|backers|sponsors|diagrams?|table.of.contents)/i;
+const MIN_CONTENT_LENGTH = 200;
 
-function findFirstContentSection(sections: Section[]): Section | null {
-  // First pass: find a meaningful section (skip boilerplate)
+function findMeaningfulSection(sections: Section[]): Section | null {
   for (const s of sections) {
-    if (s.content && !SKIP_TITLES.test(s.title)) return s;
+    if (s.content && s.content.length >= MIN_CONTENT_LENGTH && !SKIP_TITLES.test(s.title)) return s;
     if (s.children) {
-      const found = findFirstContentSection(s.children);
-      if (found) return found;
-    }
-  }
-  // Fallback: return any section with content
-  for (const s of sections) {
-    if (s.content) return s;
-    if (s.children) {
-      const found = findFirstContentSection(s.children);
+      const found = findMeaningfulSection(s.children);
       if (found) return found;
     }
   }
   return null;
+}
+
+function findAnySection(sections: Section[]): Section | null {
+  for (const s of sections) {
+    if (s.content) return s;
+    if (s.children) {
+      const found = findAnySection(s.children);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function findFirstContentSection(sections: Section[]): Section | null {
+  return findMeaningfulSection(sections) || findAnySection(sections);
 }
 
 type Mode = 'read' | 'practice';

@@ -13,7 +13,7 @@
       "icon": "FileCode2",
       "sectionCount": 478,
       "exerciseCount": 478,
-      "lastFetched": "2026-02-17T17:02:30.233Z"
+      "lastFetched": "2026-02-17T17:53:01.919Z"
     },
     {
       "id": "react-questions",
@@ -28,7 +28,7 @@
       "icon": "Atom",
       "sectionCount": 405,
       "exerciseCount": 405,
-      "lastFetched": "2026-02-17T17:02:33.328Z"
+      "lastFetched": "2026-02-17T17:53:04.767Z"
     },
     {
       "id": "frontend-handbook",
@@ -45,7 +45,7 @@
       "icon": "Layout",
       "sectionCount": 17,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:02:41.010Z"
+      "lastFetched": "2026-02-17T17:53:12.138Z"
     },
     {
       "id": "system-design",
@@ -60,7 +60,7 @@
       "icon": "Network",
       "sectionCount": 4,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:02:44.659Z"
+      "lastFetched": "2026-02-17T17:53:15.112Z"
     },
     {
       "id": "system-design-101",
@@ -75,7 +75,7 @@
       "icon": "Image",
       "sectionCount": 5,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:02:46.691Z"
+      "lastFetched": "2026-02-17T17:53:16.745Z"
     },
     {
       "id": "low-level-design",
@@ -90,7 +90,7 @@
       "icon": "Boxes",
       "sectionCount": 227,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:02:52.395Z"
+      "lastFetched": "2026-02-17T17:53:20.895Z"
     },
     {
       "id": "grokking-oop",
@@ -105,7 +105,7 @@
       "icon": "Boxes",
       "sectionCount": 15,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:02:56.673Z"
+      "lastFetched": "2026-02-17T17:53:25.403Z"
     },
     {
       "id": "devops-exercises",
@@ -122,7 +122,7 @@
       "icon": "Terminal",
       "sectionCount": 55,
       "exerciseCount": 1888,
-      "lastFetched": "2026-02-17T17:03:04.970Z"
+      "lastFetched": "2026-02-17T17:53:28.363Z"
     },
     {
       "id": "coding-interview-patterns",
@@ -138,7 +138,7 @@
       "icon": "Code2",
       "sectionCount": 3,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:03:06.489Z"
+      "lastFetched": "2026-02-17T17:53:29.743Z"
     },
     {
       "id": "ood-interview",
@@ -154,7 +154,7 @@
       "icon": "Braces",
       "sectionCount": 13,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:03:07.642Z"
+      "lastFetched": "2026-02-17T17:53:30.833Z"
     },
     {
       "id": "system-design-primer",
@@ -169,7 +169,7 @@
       "icon": "Server",
       "sectionCount": 14,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:03:15.208Z"
+      "lastFetched": "2026-02-17T17:53:34.420Z"
     },
     {
       "id": "javascript-algorithms",
@@ -184,8 +184,8 @@
       "icon": "Binary",
       "sectionCount": 130,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T17:03:26.304Z"
+      "lastFetched": "2026-02-17T17:53:37.367Z"
     }
   ],
-  "generatedAt": "2026-02-17T17:02:28.282Z"
+  "generatedAt": "2026-02-17T17:52:59.208Z"
 }
