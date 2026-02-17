@@ -1,0 +1,112 @@
+{
+  "repos": [
+    {
+      "id": "javascript-questions",
+      "source": "https://github.com/sudheerj/javascript-interview-questions",
+      "adapter": "javascript-questions",
+      "name": "JavaScript Interview Questions",
+      "description": "478+ JavaScript interview questions with answers",
+      "tags": ["javascript", "interview", "frontend"],
+      "icon": "FileCode2"
+    },
+    {
+      "id": "react-questions",
+      "source": "https://github.com/sudheerj/reactjs-interview-questions",
+      "adapter": "react-questions",
+      "name": "React Interview Questions",
+      "description": "318+ React interview questions with answers",
+      "tags": ["react", "interview", "frontend"],
+      "icon": "Atom"
+    },
+    {
+      "id": "frontend-handbook",
+      "source": "https://github.com/yangshun/front-end-interview-handbook",
+      "adapter": "base",
+      "name": "Frontend Interview Handbook",
+      "description": "Structured frontend interview preparation guide",
+      "tags": ["frontend", "interview", "html", "css", "javascript"],
+      "icon": "Layout"
+    },
+    {
+      "id": "system-design",
+      "source": "https://github.com/karanpratapsingh/system-design",
+      "adapter": "base",
+      "name": "System Design",
+      "description": "System design fundamentals and case studies",
+      "tags": ["system-design", "architecture", "distributed-systems"],
+      "icon": "Network"
+    },
+    {
+      "id": "system-design-101",
+      "source": "https://github.com/ByteByteGoHq/system-design-101",
+      "adapter": "base",
+      "name": "System Design 101",
+      "description": "Visual system design explanations by ByteByteGo",
+      "tags": ["system-design", "bytebytego", "visual"],
+      "icon": "Image"
+    },
+    {
+      "id": "low-level-design",
+      "source": "https://github.com/ashishps1/awesome-low-level-design",
+      "adapter": "base",
+      "name": "Awesome Low-Level Design",
+      "description": "40+ LLD problems with design patterns",
+      "tags": ["lld", "oop", "design-patterns"],
+      "icon": "Boxes"
+    },
+    {
+      "id": "grokking-oop",
+      "source": "https://github.com/tssovi/grokking-the-object-oriented-design-interview",
+      "adapter": "base",
+      "name": "Grokking OOP Design",
+      "description": "Object-oriented design interview problems",
+      "tags": ["oop", "design", "uml"],
+      "icon": "Component"
+    },
+    {
+      "id": "devops-exercises",
+      "source": "https://github.com/bregman-arie/devops-exercises",
+      "adapter": "devops-exercises",
+      "name": "DevOps Exercises",
+      "description": "2600+ DevOps exercises covering all major topics",
+      "tags": ["devops", "linux", "docker", "kubernetes", "cloud"],
+      "icon": "Terminal"
+    },
+    {
+      "id": "coding-interview-patterns",
+      "source": "https://github.com/ByteByteGoHq/coding-interview-patterns",
+      "adapter": "base",
+      "name": "Coding Interview Patterns",
+      "description": "101 coding problems by ByteByteGo in 6 languages",
+      "tags": ["algorithms", "bytebytego", "coding", "patterns"],
+      "icon": "Code2"
+    },
+    {
+      "id": "ood-interview",
+      "source": "https://github.com/ByteByteGoHq/ood-interview",
+      "adapter": "base",
+      "name": "OOD Interview",
+      "description": "11 OOP design projects with runnable Java code",
+      "tags": ["oop", "java", "bytebytego", "design"],
+      "icon": "Braces"
+    },
+    {
+      "id": "system-design-primer",
+      "source": "https://github.com/donnemartin/system-design-primer",
+      "adapter": "base",
+      "name": "System Design Primer",
+      "description": "Learn large-scale system design with Anki flashcards",
+      "tags": ["system-design", "scalability", "architecture"],
+      "icon": "Server"
+    },
+    {
+      "id": "javascript-algorithms",
+      "source": "https://github.com/trekhleb/javascript-algorithms",
+      "adapter": "base",
+      "name": "JavaScript Algorithms",
+      "description": "Algorithms and data structures in JavaScript",
+      "tags": ["algorithms", "data-structures", "javascript"],
+      "icon": "Binary"
+    }
+  ]
+}

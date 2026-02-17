@@ -23,3 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Library build artifacts
+.tmp-library
+src/data/library/*/content.json
