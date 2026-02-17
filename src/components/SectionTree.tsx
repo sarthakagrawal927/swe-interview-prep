@@ -1,0 +1,82 @@
+import { useState } from 'react';
+import { ChevronRight, ChevronDown, FileText } from 'lucide-react';
+import type { Section } from '../adapters/types';
+
+interface SectionTreeProps {
+  sections: Section[];
+  activeSectionId: string | null;
+  onSelect: (section: Section) => void;
+}
+
+function SectionNode({
+  section,
+  depth,
+  activeSectionId,
+  onSelect,
+}: {
+  section: Section;
+  depth: number;
+  activeSectionId: string | null;
+  onSelect: (section: Section) => void;
+}) {
+  const [expanded, setExpanded] = useState(depth < 1);
+  const hasChildren = section.children && section.children.length > 0;
+  const isActive = section.id === activeSectionId;
+
+  return (
+    <div>
+      <button
+        onClick={() => {
+          if (hasChildren) setExpanded(!expanded);
+          if (section.content) onSelect(section);
+        }}
+        className={`flex items-center gap-1.5 w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${
+          isActive
+            ? 'bg-emerald-500/15 text-emerald-400 font-medium'
+            : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+        }`}
+        style={{ paddingLeft: `${depth * 12 + 8}px` }}
+      >
+        {hasChildren ? (
+          expanded ? (
+            <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
+          )
+        ) : (
+          <FileText className="h-3.5 w-3.5 flex-shrink-0" />
+        )}
+        <span className="truncate">{section.title}</span>
+      </button>
+      {expanded && hasChildren && (
+        <div>
+          {section.children!.map(child => (
+            <SectionNode
+              key={child.id}
+              section={child}
+              depth={depth + 1}
+              activeSectionId={activeSectionId}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function SectionTree({ sections, activeSectionId, onSelect }: SectionTreeProps) {
+  return (
+    <nav className="space-y-0.5 overflow-y-auto">
+      {sections.map(section => (
+        <SectionNode
+          key={section.id}
+          section={section}
+          depth={0}
+          activeSectionId={activeSectionId}
+          onSelect={onSelect}
+        />
+      ))}
+    </nav>
+  );
+}
