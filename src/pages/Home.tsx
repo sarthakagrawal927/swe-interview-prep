@@ -47,7 +47,7 @@ export default function Home() {
 
       <Link
         to="/library"
-        className="group relative overflow-hidden rounded-2xl border border-emerald-500/30 hover:border-emerald-500/50 bg-gray-900 p-6 sm:p-8 transition-all hover:bg-gray-800/80 mt-4 sm:mt-6"
+        className="block group relative overflow-hidden rounded-2xl border border-emerald-500/30 hover:border-emerald-500/50 bg-gray-900 p-6 sm:p-8 transition-all hover:bg-gray-800/80 mt-4 sm:mt-6"
       >
         <div className="mb-4 inline-flex rounded-xl bg-emerald-500/10 p-3">
           <BookOpen className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-400" />
