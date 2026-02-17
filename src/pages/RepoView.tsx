@@ -31,7 +31,7 @@ export default function RepoView() {
   const { repoSlug } = useParams<{ repoSlug: string }>();
   const { getRepo } = useLibrary();
   const repo = repoSlug ? getRepo(repoSlug) : null;
-  const { content, loading } = useRepoContent(repoSlug || '');
+  const { content, loading, error } = useRepoContent(repoSlug || '');
 
   const [mode, setMode] = useState<Mode>('read');
   const [activeSection, setActiveSection] = useState<Section | null>(null);
@@ -146,6 +146,11 @@ export default function RepoView() {
       {loading ? (
         <div className="flex flex-1 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-700 border-t-emerald-400" />
+        </div>
+      ) : error ? (
+        <div className="flex flex-1 flex-col items-center justify-center text-center px-4">
+          <p className="text-red-400 font-medium mb-2">Failed to load content</p>
+          <p className="text-sm text-gray-500">{error}</p>
         </div>
       ) : mode === 'practice' ? (
         <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">

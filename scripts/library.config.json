@@ -61,7 +61,7 @@
       "name": "Grokking OOP Design",
       "description": "Object-oriented design interview problems",
       "tags": ["oop", "design", "uml"],
-      "icon": "Component"
+      "icon": "Boxes"
     },
     {
       "id": "devops-exercises",

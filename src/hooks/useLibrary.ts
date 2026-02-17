@@ -6,15 +6,14 @@ const manifest = manifestData as LibraryManifest;
 
 const contentCache: Record<string, ParsedRepo> = {};
 
+const emptyContent: ParsedRepo = { sections: [], exercises: [], totalItems: 0 };
+
 async function loadRepoContent(repoId: string): Promise<ParsedRepo> {
+  if (!repoId) return emptyContent;
   if (contentCache[repoId]) return contentCache[repoId];
-  try {
-    const mod = await import(`../data/library/${repoId}/content.json`);
-    contentCache[repoId] = mod.default as ParsedRepo;
-    return contentCache[repoId];
-  } catch {
-    return { sections: [], exercises: [], totalItems: 0 };
-  }
+  const mod = await import(`../data/library/${repoId}/content.json`);
+  contentCache[repoId] = mod.default as ParsedRepo;
+  return contentCache[repoId];
 }
 
 export function useLibrary() {
@@ -39,21 +38,25 @@ export function useLibrary() {
 
 export function useRepoContent(repoId: string) {
   const [content, setContent] = useState<ParsedRepo>(
-    contentCache[repoId] || { sections: [], exercises: [], totalItems: 0 }
+    contentCache[repoId] || emptyContent
   );
-  const [loading, setLoading] = useState(!contentCache[repoId]);
+  const [loading, setLoading] = useState(!!repoId && !contentCache[repoId]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!repoId) { setLoading(false); return; }
     let cancelled = false;
     setLoading(true);
-    loadRepoContent(repoId).then(data => {
-      if (!cancelled) {
-        setContent(data);
-        setLoading(false);
-      }
-    });
+    setError(null);
+    loadRepoContent(repoId)
+      .then(data => {
+        if (!cancelled) { setContent(data); setLoading(false); }
+      })
+      .catch(() => {
+        if (!cancelled) { setError('Failed to load content.'); setLoading(false); }
+      });
     return () => { cancelled = true; };
   }, [repoId]);
 
-  return { content, loading };
+  return { content, loading, error };
 }
