@@ -95,6 +95,89 @@ function countSections(sections) {
   return count;
 }
 
+function parseSudheerQA(content, tag) {
+  const sections = [];
+  const exercises = [];
+  const questionRegex = /^\d+\.\s+###\s+(.+)$/gm;
+  const matches = [...content.matchAll(questionRegex)];
+
+  for (let i = 0; i < matches.length; i++) {
+    const questionTitle = matches[i][1].trim();
+    const startIdx = matches[i].index + matches[i][0].length;
+    const endIdx = i + 1 < matches.length ? matches[i + 1].index : content.length;
+    const answerContent = content.slice(startIdx, endIdx)
+      .replace(/\*\*\[.*?Back to Top.*?\]\(.*?\)\*\*/g, '')
+      .trim();
+
+    const id = `q-${i + 1}`;
+    sections.push({
+      id,
+      title: `${i + 1}. ${questionTitle}`,
+      content: `### ${questionTitle}\n\n${answerContent}`,
+    });
+
+    const firstParagraph = answerContent.split('\n\n')[0]?.replace(/^[\s-]+/, '').trim() || answerContent;
+    exercises.push({
+      id,
+      type: 'qa',
+      question: questionTitle,
+      answer: firstParagraph.length > 500 ? firstParagraph.slice(0, 500) + '...' : firstParagraph,
+      tags: [tag],
+    });
+  }
+
+  return { sections, exercises, totalItems: sections.length + exercises.length };
+}
+
+function parseDevopsExercises(files) {
+  const sections = [];
+  const exercises = [];
+  const topicFiles = files.filter(f => f.path.startsWith('topics/') && f.path.endsWith('.md'));
+
+  for (const file of topicFiles) {
+    const parts = file.path.split('/');
+    const topicName = parts[1] || 'general';
+
+    const detailsRegex = /<details>\s*<summary>([\s\S]*?)<\/summary>[\s\S]*?<b>\s*([\s\S]*?)\s*<\/b>\s*<\/details>/gi;
+    const matches = [...file.content.matchAll(detailsRegex)];
+
+    if (matches.length > 0) {
+      sections.push({
+        id: `devops-${topicName}`,
+        title: topicName.replace(/[-_]/g, ' '),
+        content: file.content,
+      });
+
+      for (let i = 0; i < matches.length; i++) {
+        const question = matches[i][1].replace(/<[^>]*>/g, '').trim();
+        const answer = matches[i][2].replace(/<[^>]*>/g, '').trim();
+        if (question && answer) {
+          exercises.push({
+            id: `devops-${topicName}-${i}`,
+            type: 'qa',
+            question,
+            answer: answer.length > 500 ? answer.slice(0, 500) + '...' : answer,
+            tags: ['devops', topicName],
+          });
+        }
+      }
+    }
+  }
+
+  // Also include non-topic files as sections using base adapter logic
+  const otherFiles = files.filter(f => !f.path.startsWith('topics/') && (f.path.endsWith('.md') || f.path.endsWith('.rst')));
+  for (const file of otherFiles) {
+    const title = file.path.replace(/\.(md|rst)$/, '').replace(/[-_]/g, ' ').split('/').pop() || 'Overview';
+    sections.unshift({
+      id: slugify(file.path),
+      title,
+      content: file.content,
+    });
+  }
+
+  return { sections, exercises, totalItems: sections.length + exercises.length };
+}
+
 async function main() {
   console.log(`Fetching ${config.repos.length} repos...\n`);
 
@@ -117,12 +200,18 @@ async function main() {
       const files = getAllFiles(repoDir);
       console.log(`  Found ${files.length} content files`);
 
-      const sections = buildSectionTree(files);
-      const parsed = {
-        sections,
-        exercises: [],
-        totalItems: countSections(sections),
-      };
+      let parsed;
+      if (repo.adapter === 'javascript-questions' || repo.adapter === 'react-questions') {
+        const readme = files.find(f => f.path === 'README.md');
+        const tag = repo.adapter === 'javascript-questions' ? 'javascript' : 'react';
+        parsed = readme ? parseSudheerQA(readme.content, tag) : { sections: [], exercises: [], totalItems: 0 };
+      } else if (repo.adapter === 'devops-exercises') {
+        parsed = parseDevopsExercises(files);
+      } else {
+        // existing base adapter logic
+        const sections = buildSectionTree(files);
+        parsed = { sections, exercises: [], totalItems: countSections(sections) };
+      }
 
       const repoOutputDir = join(OUTPUT_DIR, repo.id);
       mkdirSync(repoOutputDir, { recursive: true });
@@ -135,12 +224,12 @@ async function main() {
         description: repo.description,
         tags: repo.tags,
         icon: repo.icon,
-        sectionCount: countSections(sections),
+        sectionCount: parsed.sections.length,
         exerciseCount: parsed.exercises.length,
         lastFetched: new Date().toISOString(),
       });
 
-      console.log(`  -> ${countSections(sections)} sections, ${parsed.exercises.length} exercises\n`);
+      console.log(`  -> ${parsed.sections.length} sections, ${parsed.exercises.length} exercises\n`);
     } catch (err) {
       console.error(`  ERROR cloning ${repo.id}: ${err.message}\n`);
     }

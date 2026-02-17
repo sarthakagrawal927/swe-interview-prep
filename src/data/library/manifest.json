@@ -11,9 +11,9 @@
         "frontend"
       ],
       "icon": "FileCode2",
-      "sectionCount": 10,
-      "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:44:52.818Z"
+      "sectionCount": 478,
+      "exerciseCount": 478,
+      "lastFetched": "2026-02-17T17:02:30.233Z"
     },
     {
       "id": "react-questions",
@@ -26,9 +26,9 @@
         "frontend"
       ],
       "icon": "Atom",
-      "sectionCount": 7,
-      "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:44:59.900Z"
+      "sectionCount": 405,
+      "exerciseCount": 405,
+      "lastFetched": "2026-02-17T17:02:33.328Z"
     },
     {
       "id": "frontend-handbook",
@@ -43,9 +43,9 @@
         "javascript"
       ],
       "icon": "Layout",
-      "sectionCount": 84,
+      "sectionCount": 17,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:45:28.771Z"
+      "lastFetched": "2026-02-17T17:02:41.010Z"
     },
     {
       "id": "system-design",
@@ -58,9 +58,9 @@
         "distributed-systems"
       ],
       "icon": "Network",
-      "sectionCount": 5,
+      "sectionCount": 4,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:45:35.975Z"
+      "lastFetched": "2026-02-17T17:02:44.659Z"
     },
     {
       "id": "system-design-101",
@@ -73,9 +73,9 @@
         "visual"
       ],
       "icon": "Image",
-      "sectionCount": 420,
+      "sectionCount": 5,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:45:38.411Z"
+      "lastFetched": "2026-02-17T17:02:46.691Z"
     },
     {
       "id": "low-level-design",
@@ -88,9 +88,9 @@
         "design-patterns"
       ],
       "icon": "Boxes",
-      "sectionCount": 485,
+      "sectionCount": 227,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:45:55.216Z"
+      "lastFetched": "2026-02-17T17:02:52.395Z"
     },
     {
       "id": "grokking-oop",
@@ -103,9 +103,9 @@
         "uml"
       ],
       "icon": "Component",
-      "sectionCount": 76,
+      "sectionCount": 15,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:46:11.221Z"
+      "lastFetched": "2026-02-17T17:02:56.673Z"
     },
     {
       "id": "devops-exercises",
@@ -120,9 +120,9 @@
         "cloud"
       ],
       "icon": "Terminal",
-      "sectionCount": 415,
-      "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:46:19.114Z"
+      "sectionCount": 55,
+      "exerciseCount": 1888,
+      "lastFetched": "2026-02-17T17:03:04.970Z"
     },
     {
       "id": "coding-interview-patterns",
@@ -138,7 +138,7 @@
       "icon": "Code2",
       "sectionCount": 3,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:46:21.005Z"
+      "lastFetched": "2026-02-17T17:03:06.489Z"
     },
     {
       "id": "ood-interview",
@@ -152,9 +152,9 @@
         "design"
       ],
       "icon": "Braces",
-      "sectionCount": 24,
+      "sectionCount": 13,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:46:22.427Z"
+      "lastFetched": "2026-02-17T17:03:07.642Z"
     },
     {
       "id": "system-design-primer",
@@ -167,9 +167,9 @@
         "architecture"
       ],
       "icon": "Server",
-      "sectionCount": 30,
+      "sectionCount": 14,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:46:40.184Z"
+      "lastFetched": "2026-02-17T17:03:15.208Z"
     },
     {
       "id": "javascript-algorithms",
@@ -182,10 +182,10 @@
         "javascript"
       ],
       "icon": "Binary",
-      "sectionCount": 368,
+      "sectionCount": 130,
       "exerciseCount": 0,
-      "lastFetched": "2026-02-17T16:46:51.125Z"
+      "lastFetched": "2026-02-17T17:03:26.304Z"
     }
   ],
-  "generatedAt": "2026-02-17T16:44:47.680Z"
+  "generatedAt": "2026-02-17T17:02:28.282Z"
 }
