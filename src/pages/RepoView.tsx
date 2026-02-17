@@ -14,7 +14,18 @@ import MarkdownViewer from '../components/MarkdownViewer';
 import ExerciseRunner from '../components/ExerciseRunner';
 import type { Section } from '../adapters/types';
 
+const SKIP_TITLES = /^(contribut|code.of.conduct|license|changelog|security|funding|backers|sponsors)/i;
+
 function findFirstContentSection(sections: Section[]): Section | null {
+  // First pass: find a meaningful section (skip boilerplate)
+  for (const s of sections) {
+    if (s.content && !SKIP_TITLES.test(s.title)) return s;
+    if (s.children) {
+      const found = findFirstContentSection(s.children);
+      if (found) return found;
+    }
+  }
+  // Fallback: return any section with content
   for (const s of sections) {
     if (s.content) return s;
     if (s.children) {

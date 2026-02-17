@@ -50,9 +50,9 @@ function SectionNode({
       </button>
       {expanded && hasChildren && (
         <div>
-          {section.children!.map(child => (
+          {section.children!.map((child, i) => (
             <SectionNode
-              key={child.id}
+              key={`${child.id}-${i}`}
               section={child}
               depth={depth + 1}
               activeSectionId={activeSectionId}
@@ -68,9 +68,9 @@ function SectionNode({
 export default function SectionTree({ sections, activeSectionId, onSelect }: SectionTreeProps) {
   return (
     <nav className="space-y-0.5 overflow-y-auto">
-      {sections.map(section => (
+      {sections.map((section, i) => (
         <SectionNode
-          key={section.id}
+          key={`${section.id}-${i}`}
           section={section}
           depth={0}
           activeSectionId={activeSectionId}
