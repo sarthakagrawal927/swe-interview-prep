@@ -1,8 +1,16 @@
 import { Code2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Login() {
   const { signInWithGoogle, continueAsGuest } = useAuth();
+  const [debugInfo, setDebugInfo] = useState<string>('');
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    setDebugInfo(clientId ? 'Client ID configured' : 'Missing VITE_GOOGLE_CLIENT_ID');
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
@@ -16,6 +24,8 @@ export default function Login() {
         </div>
 
         <div className="space-y-3">
+          <div ref={googleButtonRef} className="flex justify-center"></div>
+
           <button
             onClick={signInWithGoogle}
             className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
@@ -40,6 +50,10 @@ export default function Login() {
             </svg>
             Sign in with Google
           </button>
+
+          {import.meta.env.DEV && debugInfo && (
+            <p className="text-xs text-gray-600">{debugInfo}</p>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

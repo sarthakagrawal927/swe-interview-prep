@@ -126,13 +126,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId || !googleLoaded) {
-      console.error('Google Sign-In not ready');
+    if (!clientId) {
+      console.error('VITE_GOOGLE_CLIENT_ID not configured');
+      alert('Google Sign-In not configured. Please check environment variables.');
       return;
     }
 
-    // Trigger the One Tap prompt
-    window.google?.accounts.id.prompt();
+    if (!googleLoaded) {
+      console.error('Google Sign-In script not loaded yet');
+      alert('Google Sign-In is loading, please try again in a moment.');
+      return;
+    }
+
+    if (!window.google?.accounts?.id) {
+      console.error('Google Sign-In API not available');
+      alert('Google Sign-In is not available. Please check your connection.');
+      return;
+    }
+
+    // Initialize and show One Tap prompt
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: (response: any) => {
+        if (response.credential) {
+          login(response.credential).catch(err => {
+            console.error('Login failed:', err);
+            alert('Sign-in failed. Please try again.');
+          });
+        }
+      },
+    });
+
+    window.google.accounts.id.prompt((notification: any) => {
+      if (notification.isNotDisplayed()) {
+        console.error('One Tap not displayed:', notification.getNotDisplayedReason());
+        // Fallback: try to render a button instead
+        const buttonDiv = document.createElement('div');
+        buttonDiv.id = 'google-signin-button-temp';
+        document.body.appendChild(buttonDiv);
+
+        window.google.accounts.id.renderButton(buttonDiv, {
+          theme: 'filled_blue',
+          size: 'large',
+          width: 250,
+        });
+
+        // Click it automatically
+        setTimeout(() => {
+          const btn = buttonDiv.querySelector('div[role="button"]') as HTMLElement;
+          if (btn) btn.click();
+        }, 100);
+      }
+    });
   };
 
   const signOut = async () => {
