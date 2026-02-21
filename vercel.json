@@ -1,5 +1,12 @@
 {
+  "buildCommand": "npm run fetch-library && npm run build",
   "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "functions": {
+    "api/**/*.mjs": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
