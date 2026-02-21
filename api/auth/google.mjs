@@ -62,7 +62,12 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ user, token });
   } catch (error) {
-    console.error('Google auth error:', error.message);
-    return res.status(401).json({ error: 'Authentication failed' });
+    console.error('Google auth error:', error.message, error.stack);
+    return res.status(401).json({
+      error: 'Authentication failed',
+      details: error.message,
+      hasClientId: !!GOOGLE_CLIENT_ID,
+      clientIdLength: GOOGLE_CLIENT_ID?.length,
+    });
   }
 }
