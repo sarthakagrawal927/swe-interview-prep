@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, getAuthToken } from '../contexts/AuthContext';
 
 const LOCAL_NOTES_KEY = 'dsa-prep-notes';
+const API_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
 function loadLocalNotes(): Record<string, string> {
   try {
@@ -27,16 +27,18 @@ export function useNotes(problemId: string | undefined) {
     if (!problemId) return;
 
     if (user) {
-      // Signed in: load from Supabase
-      supabase
-        .from('user_notes')
-        .select('notes')
-        .eq('user_id', user.id)
-        .eq('problem_id', problemId)
-        .single()
-        .then(({ data }) => {
-          setNotes(data?.notes || '');
-        });
+      // Signed in: load from backend API
+      const token = getAuthToken();
+      if (!token) return;
+
+      fetch(`${API_URL}/api/notes?problemId=${problemId}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+        .then(res => res.json())
+        .then(data => {
+          setNotes(data.notes || '');
+        })
+        .catch(err => console.error('Failed to load notes:', err));
     } else {
       // Guest: load from localStorage
       const all = loadLocalNotes();
@@ -51,13 +53,18 @@ export function useNotes(problemId: string | undefined) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       if (user) {
-        // Signed in: save to Supabase
-        supabase.from('user_notes').upsert({
-          user_id: user.id,
-          problem_id: problemId,
-          notes: value,
-          updated_at: new Date().toISOString(),
-        }).then();
+        // Signed in: save to backend API
+        const token = getAuthToken();
+        if (!token) return;
+
+        fetch(`${API_URL}/api/notes`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ problemId, notes: value }),
+        }).catch(err => console.error('Failed to save notes:', err));
       } else {
         // Guest: save to localStorage
         const all = loadLocalNotes();

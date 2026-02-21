@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, getAuthToken } from '../contexts/AuthContext';
 
 export type AIProvider = 'claude-code' | 'codex' | 'gemini-cli' | 'openai' | 'anthropic' | 'google' | 'deepseek' | 'qwen';
 
@@ -20,6 +19,7 @@ interface AIConfig {
 }
 
 const AI_CONFIG_KEY = 'dsa-prep-ai-config';
+const API_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
 const MODELS: Record<AIProvider, string[]> = {
   'claude-code': ['claude-code-local'],
@@ -288,18 +288,20 @@ export function useAI(problemId?: string) {
     setError(null);
 
     if (user) {
-      // Signed in: load from Supabase
-      supabase
-        .from('user_chats')
-        .select('messages')
-        .eq('user_id', user.id)
-        .eq('problem_id', problemId)
-        .single()
-        .then(({ data }) => {
-          if (data?.messages && Array.isArray(data.messages)) {
+      // Signed in: load from backend API
+      const token = getAuthToken();
+      if (!token) return;
+
+      fetch(`${API_URL}/api/chats?problemId=${problemId}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.messages && Array.isArray(data.messages)) {
             setMessages(data.messages as AIMessage[]);
           }
-        });
+        })
+        .catch(err => console.error('Failed to load chats:', err));
     } else {
       // Guest: load from localStorage
       const all = loadLocalChats();
@@ -314,13 +316,18 @@ export function useAI(problemId?: string) {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       if (user) {
-        // Signed in: save to Supabase
-        supabase.from('user_chats').upsert({
-          user_id: user.id,
-          problem_id: problemId,
-          messages: msgs,
-          updated_at: new Date().toISOString(),
-        }).then();
+        // Signed in: save to backend API
+        const token = getAuthToken();
+        if (!token) return;
+
+        fetch(`${API_URL}/api/chats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ problemId, messages: msgs }),
+        }).catch(err => console.error('Failed to save chats:', err));
       } else {
         // Guest: save to localStorage
         const all = loadLocalChats();
@@ -381,11 +388,13 @@ export function useAI(problemId?: string) {
     setError(null);
     if (!problemId) return;
     if (user) {
-      supabase.from('user_chats')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('problem_id', problemId)
-        .then();
+      const token = getAuthToken();
+      if (!token) return;
+
+      fetch(`${API_URL}/api/chats?problemId=${problemId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      }).catch(err => console.error('Failed to delete chats:', err));
     } else {
       const all = loadLocalChats();
       delete all[problemId];

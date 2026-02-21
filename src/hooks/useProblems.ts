@@ -1,8 +1,9 @@
 import React, { useMemo, useCallback, useSyncExternalStore, useEffect } from 'react';
 import dsaData from '../data/problems.json';
 import type { Problem, AnkiCardWithMeta, ProblemsData, InterviewCategory } from '../types';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, getAuthToken } from '../contexts/AuthContext';
+
+const API_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
 // Lazy-load category data (only DSA is bundled, others loaded on demand)
 const dataCache: Record<string, ProblemsData> = {
@@ -57,19 +58,23 @@ export function useProblems(category: InterviewCategory = 'dsa') {
     loadCategoryData(category).then(setCategoryData);
   }, [category]);
 
-  // Load imported problems from Supabase on mount
+  // Load imported problems from backend on mount
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from('user_imported_problems')
-      .select('problem_id, problem_data')
-      .eq('user_id', user.id)
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const problems = data.map(row => row.problem_data as Problem);
+    const token = getAuthToken();
+    if (!token) return;
+
+    fetch(`${API_URL}/api/problems`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.problems && data.problems.length > 0) {
+          const problems = data.problems.map((item: any) => item.problemData as Problem);
           setStore(problems);
         }
-      });
+      })
+      .catch(err => console.error('Failed to load problems:', err));
   }, [user]);
 
   const { patterns } = categoryData;
@@ -92,11 +97,20 @@ export function useProblems(category: InterviewCategory = 'dsa') {
   const addCustomProblem = useCallback((problem: Problem) => {
     addToStore({ ...problem, category });
     if (user) {
-      supabase.from('user_imported_problems').upsert({
-        user_id: user.id,
-        problem_id: problem.id,
-        problem_data: { ...problem, category },
-      }).then();
+      const token = getAuthToken();
+      if (!token) return;
+
+      fetch(`${API_URL}/api/problems`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          problemId: problem.id,
+          problemData: { ...problem, category },
+        }),
+      }).catch(err => console.error('Failed to save problem:', err));
     }
   }, [user, category]);
 
@@ -154,4 +168,3 @@ export function useProblems(category: InterviewCategory = 'dsa') {
 
   return { patterns, problems, getById, getBySlug, getByPattern, search, getPatternStats, getAllAnkiCards, addCustomProblem };
 }
-
