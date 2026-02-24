@@ -10,6 +10,7 @@ import AnkiReview from './pages/AnkiReview';
 import ImportProblem from './pages/ImportProblem';
 import Library from './pages/Library';
 import RepoView from './pages/RepoView';
+import Playground from './pages/Playground';
 import Login from './pages/Login';
 
 function CategoryRoutes() {
@@ -47,6 +48,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="library" element={<Library />} />
         <Route path="library/:repoSlug" element={<RepoView />} />
+        <Route path="playground" element={<Playground />} />
         <Route path=":category/*" element={<CategoryRoutes />} />
         {/* Legacy routes redirect to DSA */}
         <Route path="patterns" element={<Navigate to="/dsa/patterns" replace />} />
