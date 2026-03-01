@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Code2, Boxes, Network, Users, ArrowRight, BookOpen } from 'lucide-react';
+import { Code2, Boxes, Network, Users, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { CATEGORIES } from '../types';
 
 const ICONS = { Code2, Boxes, Network, Users };
@@ -56,6 +56,25 @@ export default function Home() {
         <p className="mt-1 text-sm text-gray-400">Browse curated learning repos with interactive exercises</p>
         <div className="mt-4 flex items-center gap-1 text-sm font-medium text-emerald-400">
           Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </div>
+      </Link>
+
+      <Link
+        to="/vibe-learning"
+        className="block group relative overflow-hidden rounded-2xl border border-teal-500/30 hover:border-teal-500/50 bg-gray-900 p-6 sm:p-8 transition-all hover:bg-gray-800/80 mt-4 sm:mt-6"
+      >
+        <div className="mb-4 inline-flex rounded-xl bg-teal-500/10 p-3">
+          <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-teal-400" />
+        </div>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Vibe Learning</h2>
+          <span className="rounded-full border border-teal-400/40 bg-teal-400/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-300">
+            Beta
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-gray-400">Continuous bite-sized flow with resume state and flexible filters</p>
+        <div className="mt-4 flex items-center gap-1 text-sm font-medium text-teal-400">
+          Start flow <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
       </Link>
     </div>

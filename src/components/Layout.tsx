@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation, useParams } from 'react-router-dom';
-import { LayoutDashboard, Grid3X3, Brain, PlusCircle, Code2, LogOut, LogIn, Home, Boxes, Network, Users, BookOpen, FlaskConical } from 'lucide-react';
+import { LayoutDashboard, Grid3X3, Brain, PlusCircle, Code2, LogOut, LogIn, Home, Boxes, Network, Users, BookOpen, FlaskConical, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { CATEGORIES, getCategoryConfig } from '../types';
 import type { InterviewCategory } from '../types';
@@ -154,6 +154,21 @@ export default function Layout() {
               >
                 <FlaskConical className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Playground</span>
+              </NavLink>
+
+              <NavLink
+                to="/vibe-learning"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive ? 'bg-teal-500/20 text-teal-400' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                  }`
+                }
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Vibe Learning</span>
+                <span className="hidden sm:inline rounded-full border border-teal-400/40 bg-teal-400/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-300">
+                  Beta
+                </span>
               </NavLink>
 
               {/* User info */}

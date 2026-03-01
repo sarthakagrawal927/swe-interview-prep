@@ -12,6 +12,7 @@ import Library from './pages/Library';
 import RepoView from './pages/RepoView';
 import Playground from './pages/Playground';
 import Login from './pages/Login';
+import VibeLearning from './pages/VibeLearning';
 
 function CategoryRoutes() {
   return (
@@ -49,6 +50,7 @@ function App() {
         <Route path="library" element={<Library />} />
         <Route path="library/:repoSlug" element={<RepoView />} />
         <Route path="playground" element={<Playground />} />
+        <Route path="vibe-learning" element={<VibeLearning />} />
         <Route path=":category/*" element={<CategoryRoutes />} />
         {/* Legacy routes redirect to DSA */}
         <Route path="patterns" element={<Navigate to="/dsa/patterns" replace />} />

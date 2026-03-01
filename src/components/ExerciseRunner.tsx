@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { RotateCcw, CheckCircle2, XCircle, ChevronRight, Shuffle } from 'lucide-react';
 import type { Exercise } from '../adapters/types';
+import { scoreExerciseQuality } from '../lib/questionQuality';
 
 interface ExerciseRunnerProps {
   exercises: Exercise[];
@@ -22,7 +23,21 @@ export default function ExerciseRunner({ exercises, repoName }: ExerciseRunnerPr
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [shuffled, setShuffled] = useState(false);
   const [tagFilter, setTagFilter] = useState('all');
+  const [qualityFilter, setQualityFilter] = useState<'high' | 'all'>('high');
   const [score, setScore] = useState({ correct: 0, total: 0 });
+
+  const scoredExercises = useMemo(() => {
+    return exercises.map(exercise => {
+      if (exercise.qualityScore !== undefined && exercise.qualityTier) return exercise;
+      const quality = scoreExerciseQuality(exercise);
+      return {
+        ...exercise,
+        qualityScore: quality.score,
+        qualityTier: quality.tier,
+        qualitySignals: quality.signals,
+      };
+    });
+  }, [exercises]);
 
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -31,9 +46,17 @@ export default function ExerciseRunner({ exercises, repoName }: ExerciseRunnerPr
   }, [exercises]);
 
   const filtered = useMemo(() => {
-    let list = tagFilter === 'all' ? exercises : exercises.filter(e => e.tags.includes(tagFilter));
-    return shuffled ? shuffleArray(list) : list;
-  }, [exercises, tagFilter, shuffled]);
+    let list = tagFilter === 'all'
+      ? scoredExercises
+      : scoredExercises.filter(e => e.tags.includes(tagFilter));
+
+    if (qualityFilter === 'high') {
+      list = list.filter(e => (e.qualityScore || 0) >= 72 || e.qualityTier === 'high');
+    }
+
+    const ordered = [...list].sort((a, b) => (b.qualityScore || 0) - (a.qualityScore || 0));
+    return shuffled ? shuffleArray(ordered) : ordered;
+  }, [scoredExercises, tagFilter, qualityFilter, shuffled]);
 
   const current = filtered[index];
 
@@ -78,6 +101,29 @@ export default function ExerciseRunner({ exercises, repoName }: ExerciseRunnerPr
           )}
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-lg border border-gray-700 bg-gray-900 p-0.5">
+            <button
+              onClick={() => { setQualityFilter('high'); setIndex(0); }}
+              className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                qualityFilter === 'high'
+                  ? 'bg-emerald-500/20 text-emerald-400'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              High signal
+            </button>
+            <button
+              onClick={() => { setQualityFilter('all'); setIndex(0); }}
+              className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                qualityFilter === 'all'
+                  ? 'bg-emerald-500/20 text-emerald-400'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              All
+            </button>
+          </div>
+
           {allTags.length > 1 && (
             <select
               value={tagFilter}
@@ -109,15 +155,28 @@ export default function ExerciseRunner({ exercises, repoName }: ExerciseRunnerPr
       <div className="rounded-2xl border border-gray-800 bg-gray-900 p-6 sm:p-8">
         {/* Question */}
         <div className="mb-6">
-          {current.difficulty && (
-            <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium mb-3 ${
-              current.difficulty === 'easy' ? 'bg-green-500/10 text-green-400' :
-              current.difficulty === 'medium' ? 'bg-yellow-500/10 text-yellow-400' :
-              'bg-red-500/10 text-red-400'
-            }`}>
-              {current.difficulty}
-            </span>
-          )}
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            {current.difficulty && (
+              <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                current.difficulty === 'easy' ? 'bg-green-500/10 text-green-400' :
+                current.difficulty === 'medium' ? 'bg-yellow-500/10 text-yellow-400' :
+                'bg-red-500/10 text-red-400'
+              }`}>
+                {current.difficulty}
+              </span>
+            )}
+            {current.qualityScore !== undefined && (
+              <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                current.qualityTier === 'high'
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : current.qualityTier === 'medium'
+                  ? 'bg-sky-500/10 text-sky-400'
+                  : 'bg-gray-700/60 text-gray-400'
+              }`}>
+                Quality {current.qualityScore}
+              </span>
+            )}
+          </div>
           <p className="text-lg text-gray-200 whitespace-pre-wrap">{current.question}</p>
         </div>
 

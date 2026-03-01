@@ -300,7 +300,7 @@ export const DSA_MCQ_CARDS: MCQCard[] = [
     options: ['Start the next recursion from index 0', 'Start from the current index (not i+1)', 'Use a visited array', 'Add the number multiple times before recursing'],
     correctIndex: 1, explanation: 'By recursing with the same index i (not i+1), we allow the same candidate to be used again. Moving to i+1 would prevent reuse.' },
   { id: 'combination-sum-mcq-2', problemId: 'combination-sum', difficulty: 'hard',
-    question: 'For candidates = [2, 3, 6, 7], target = 7, how many combinations exist?',
+    question: 'For candidates = [2, 3, 6, 7] and target = 7, how many unique combinations sum to the target?',
     options: ['1', '2', '3', '4'],
     correctIndex: 1, explanation: 'Two combinations: [2, 2, 3] and [7].' },
 
@@ -334,7 +334,7 @@ export const DSA_MCQ_CARDS: MCQCard[] = [
     correctIndex: 2, explanation: 'Encountering a gray node during DFS means we\'ve found a back edge (cycle). Black nodes are safe - their subtree has no cycles.' },
 
   { id: 'graph-valid-tree-mcq-1', problemId: 'graph-valid-tree', difficulty: 'hard',
-    question: 'A graph is a valid tree if and only if:',
+    question: 'Which condition is necessary and sufficient for an undirected graph to be a valid tree?',
     options: ['It has n-1 edges', 'It is connected and has no cycles', 'Every node has at most 2 children', 'It has exactly one root node'],
     correctIndex: 1, explanation: 'A tree is a connected acyclic graph. Equivalently: n nodes, n-1 edges, and connected. Having n-1 edges alone isn\'t sufficient (could be disconnected).' },
 
@@ -383,7 +383,7 @@ export const DSA_MCQ_CARDS: MCQCard[] = [
     correctIndex: 1, explanation: 'The subarray [2, 3] gives product 6. Including -2 makes it negative, and [4] alone is only 4.' },
 
   { id: 'house-robber-mcq-1', problemId: 'house-robber', difficulty: 'medium',
-    question: 'What is the recurrence for House Robber?',
+    question: 'Which DP recurrence correctly models the House Robber problem?',
     options: ['dp[i] = dp[i-1] + nums[i]', 'dp[i] = max(dp[i-1], dp[i-2] + nums[i])', 'dp[i] = max(nums[i], dp[i-1])', 'dp[i] = dp[i-2] + nums[i]'],
     correctIndex: 1, explanation: 'At each house: either skip it (dp[i-1]) or rob it (dp[i-2] + nums[i], since adjacent houses can\'t both be robbed).' },
   { id: 'house-robber-mcq-2', problemId: 'house-robber', difficulty: 'hard',
@@ -421,7 +421,7 @@ export const DSA_MCQ_CARDS: MCQCard[] = [
 
   // ===== 2D DP =====
   { id: 'unique-paths-mcq-1', problemId: 'unique-paths', difficulty: 'medium',
-    question: 'What is the recurrence for Unique Paths on an m x n grid?',
+    question: 'Which recurrence relation correctly models Unique Paths on an m x n grid?',
     options: ['dp[i][j] = dp[i-1][j] * dp[i][j-1]', 'dp[i][j] = dp[i-1][j] + dp[i][j-1]', 'dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + 1', 'dp[i][j] = max(dp[i-1][j], dp[i][j-1])'],
     correctIndex: 1, explanation: 'Each cell can be reached from above or from the left. Total paths = sum of paths from both directions.' },
   { id: 'unique-paths-mcq-2', problemId: 'unique-paths', difficulty: 'hard',
@@ -430,11 +430,11 @@ export const DSA_MCQ_CARDS: MCQCard[] = [
     correctIndex: 1, explanation: 'C(m+n-2, m-1) = C(8, 2) = 28. It\'s a combinatorics problem: choose 2 "downs" from 8 total moves.' },
 
   { id: 'lcs-mcq-1', problemId: 'longest-common-subsequence', difficulty: 'medium',
-    question: 'What is the recurrence for Longest Common Subsequence?',
+    question: 'Which recurrence relation correctly defines Longest Common Subsequence (LCS)?',
     options: ['If chars match: dp[i-1][j-1] + 1; else: max(dp[i-1][j], dp[i][j-1])', 'If chars match: dp[i-1][j-1] + 1; else: 0', 'dp[i][j] = dp[i-1][j] + dp[i][j-1]', 'If chars match: max(dp[i-1][j], dp[i][j-1]) + 1; else: 0'],
     correctIndex: 0, explanation: 'When characters match, extend the LCS. When they don\'t, take the max of skipping either character.' },
   { id: 'lcs-mcq-2', problemId: 'longest-common-subsequence', difficulty: 'hard',
-    question: 'For text1 = "abcde", text2 = "ace", what is the LCS length?',
+    question: 'For text1 = "abcde" and text2 = "ace", what is the LCS length?',
     options: ['1', '2', '3', '4'],
     correctIndex: 2, explanation: 'The LCS is "ace" with length 3.' },
 
@@ -444,7 +444,7 @@ export const DSA_MCQ_CARDS: MCQCard[] = [
     options: ['Sort the array first', 'At each position, either extend the current subarray or start fresh', 'Use divide and conquer on the midpoint', 'Track prefix sums and find max difference'],
     correctIndex: 1, explanation: 'currentMax = max(nums[i], currentMax + nums[i]). If extending the subarray gives less than starting fresh, start fresh.' },
   { id: 'max-subarray-mcq-2', problemId: 'maximum-subarray', difficulty: 'hard',
-    question: 'For nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4], what is the max subarray sum?',
+    question: 'For nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4], what is the maximum subarray sum?',
     options: ['4', '5', '6', '7'],
     correctIndex: 2, explanation: 'Subarray [4, -1, 2, 1] has sum 6.' },
 
@@ -459,7 +459,7 @@ export const DSA_MCQ_CARDS: MCQCard[] = [
     options: ['Sort by end time', 'Sort by start time', 'Sort by interval length', 'Group overlapping intervals with a hash map'],
     correctIndex: 1, explanation: 'Sort by start time. Then iterate: if current overlaps with last merged interval, extend the end. Otherwise, add as new interval.' },
   { id: 'merge-intervals-mcq-2', problemId: 'merge-intervals', difficulty: 'hard',
-    question: 'For intervals = [[1,3],[2,6],[8,10],[15,18]], what are the merged intervals?',
+    question: 'For intervals = [[1,3],[2,6],[8,10],[15,18]], what is the merged output?',
     options: ['[[1,6],[8,10],[15,18]]', '[[1,6],[8,18]]', '[[1,10],[15,18]]', '[[1,18]]'],
     correctIndex: 0, explanation: '[1,3] and [2,6] overlap -> [1,6]. [8,10] and [15,18] don\'t overlap with anything else.' },
 

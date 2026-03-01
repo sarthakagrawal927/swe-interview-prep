@@ -1278,7 +1278,7 @@
       "ankiCards": [
         {
           "id": "minimum-window-substring-have-need",
-          "front": "Minimum Window Substring: Explain the 'have' and 'need' counter technique.",
+          "front": "In Minimum Window Substring, how do the 'have' and 'need' counters decide when to expand vs shrink the window?",
           "back": "'need' = number of unique characters in t. 'have' = number of unique characters whose frequency in the window meets or exceeds the required frequency. When have === need, the window contains all required characters. This avoids rechecking the entire frequency map each time."
         },
         {
@@ -2014,7 +2014,7 @@
       "ankiCards": [
         {
           "id": "linked-list-cycle-floyds",
-          "front": "Linked List Cycle: Explain Floyd's tortoise and hare algorithm.",
+          "front": "In Linked List Cycle detection, how does Floyd's tortoise-and-hare algorithm guarantee a cycle is found?",
           "back": "Use two pointers: slow moves 1 step, fast moves 2 steps. If there is a cycle, fast will eventually lap slow and they will meet. If fast reaches null, there is no cycle. O(n) time, O(1) space."
         },
         {
@@ -5518,7 +5518,7 @@
       "ankiCards": [
         {
           "id": "maximum-subarray-kadane",
-          "front": "Maximum Subarray: Explain Kadane's Algorithm.",
+          "front": "In Maximum Subarray, what is Kadane's algorithm and why does restarting at the current element sometimes become optimal?",
           "back": "Kadane's Algorithm (Greedy):\n\ncurrentSum = max(nums[i], currentSum + nums[i])\nmaxSum = max(maxSum, currentSum)\n\nAt each element, either extend the current subarray or start fresh. If the running sum is negative, starting fresh is always better.\n\nTime: O(n), Space: O(1)"
         },
         {
@@ -6046,7 +6046,7 @@
       "ankiCards": [
         {
           "id": "meeting-rooms-ii-two-pointers",
-          "front": "Meeting Rooms II: Explain the two-pointer approach with separate start/end arrays.",
+          "front": "In Meeting Rooms II, how does the two-pointer approach over sorted start/end arrays compute the minimum rooms?",
           "back": "1. Extract and sort start times and end times separately\n2. Use pointer s for starts, e for ends\n3. If starts[s] < ends[e]: a meeting starts before one ends -> rooms++, s++\n4. Else: a meeting ends -> rooms--, e++\n5. Track maxRooms throughout\n\nTime: O(n log n), Space: O(n)\n\nKey: We don't need to match which start goes with which end. We only care about the count of concurrent meetings."
         },
         {

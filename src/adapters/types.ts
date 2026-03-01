@@ -18,6 +18,11 @@ export interface Exercise {
   options?: string[];
   difficulty?: 'easy' | 'medium' | 'hard';
   tags: string[];
+  qualityScore?: number;
+  qualityTier?: 'low' | 'medium' | 'high';
+  qualitySignals?: string[];
+  sourcePath?: string;
+  sourceSection?: string;
 }
 
 export interface ParsedRepo {
