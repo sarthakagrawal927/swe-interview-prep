@@ -1,5 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { saasmaker } from './lib/saasmaker';
 import { CategoryProvider } from './contexts/CategoryContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -30,6 +32,11 @@ function CategoryRoutes() {
 
 function App() {
   const { user, isGuest, loading } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    saasmaker.analytics.track({ name: 'page_view', url: location.pathname }).catch(() => {});
+  }, [location.pathname]);
 
   if (loading) {
     return (

@@ -19,6 +19,7 @@
     "@excalidraw/excalidraw": "^0.18.0",
     "@libsql/client": "^0.14.0",
     "@monaco-editor/react": "^4.7.0",
+    "@saas-maker/sdk": "0.2.0",
     "ai": "^6.0.77",
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
