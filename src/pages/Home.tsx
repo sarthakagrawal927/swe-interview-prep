@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Code2, Boxes, Network, Users, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { CATEGORIES } from '../types';
+import { SaaSMakerTestimonials, SaaSMakerChangelog } from '../components/saasmaker-feedback';
 
 const ICONS = { Code2, Boxes, Network, Users };
 
@@ -77,6 +78,18 @@ export default function Home() {
           Start flow <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
       </Link>
+
+      {/* Testimonials */}
+      <div className="mt-12">
+        <h2 className="mb-6 text-center text-2xl font-bold text-white">What people are saying</h2>
+        <SaaSMakerTestimonials />
+      </div>
+
+      {/* Changelog */}
+      <div className="mt-12">
+        <h2 className="mb-6 text-center text-2xl font-bold text-white">Changelog</h2>
+        <SaaSMakerChangelog />
+      </div>
     </div>
   );
 }
