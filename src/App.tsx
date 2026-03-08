@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { saasmaker } from './lib/saasmaker';
+import { SaaSMakerFeedback } from './components/saasmaker-feedback';
 import { CategoryProvider } from './contexts/CategoryContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -51,21 +52,24 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="library" element={<Library />} />
-        <Route path="library/:repoSlug" element={<RepoView />} />
-        <Route path="playground" element={<Playground />} />
-        <Route path="vibe-learning" element={<VibeLearning />} />
-        <Route path=":category/*" element={<CategoryRoutes />} />
-        {/* Legacy routes redirect to DSA */}
-        <Route path="patterns" element={<Navigate to="/dsa/patterns" replace />} />
-        <Route path="problem/:id" element={<Navigate to="/dsa/problem/:id" replace />} />
-        <Route path="anki" element={<Navigate to="/dsa/review" replace />} />
-        <Route path="import" element={<Navigate to="/dsa/import" replace />} />
-      </Route>
-    </Routes>
+    <>
+      <SaaSMakerFeedback />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="library" element={<Library />} />
+          <Route path="library/:repoSlug" element={<RepoView />} />
+          <Route path="playground" element={<Playground />} />
+          <Route path="vibe-learning" element={<VibeLearning />} />
+          <Route path=":category/*" element={<CategoryRoutes />} />
+          {/* Legacy routes redirect to DSA */}
+          <Route path="patterns" element={<Navigate to="/dsa/patterns" replace />} />
+          <Route path="problem/:id" element={<Navigate to="/dsa/problem/:id" replace />} />
+          <Route path="anki" element={<Navigate to="/dsa/review" replace />} />
+          <Route path="import" element={<Navigate to="/dsa/import" replace />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 
