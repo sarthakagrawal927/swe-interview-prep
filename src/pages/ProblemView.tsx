@@ -234,6 +234,7 @@ export default function ProblemView() {
                   onAskAI={() => setShowAI(!showAI)}
                   showAI={showAI}
                   editorMode={editorMode}
+                  onFormat={() => editorRef.current?.getAction('editor.action.formatDocument')?.run()}
                   onToggleMode={category === 'hld' ? () => setEditorMode(m => m === 'code' ? 'diagram' : 'code') : undefined}
                 />
                 <div className="flex-1 min-h-0">
@@ -343,6 +344,7 @@ export default function ProblemView() {
                   isRunning={isRunning}
                   language={language}
                   setLanguage={setLanguage}
+                  onFormat={() => editorRef.current?.getAction('editor.action.formatDocument')?.run()}
                 />
                 <div className="h-[300px]">
                   <Editor
@@ -530,11 +532,12 @@ function NotesSection({ notes, setNotesLocal, handleSaveNotes }) {
 }
 
 /** Editor toolbar with Run and Reset buttons */
-function EditorToolbar({ handleReset, handleRun, isRunning, language, setLanguage, onAskAI, showAI, editorMode, onToggleMode }: {
+function EditorToolbar({ handleReset, handleRun, isRunning, language, setLanguage, onAskAI, showAI, editorMode, onToggleMode, onFormat }: {
   handleReset: () => void; handleRun: () => void; isRunning: boolean;
   language: Language; setLanguage: (l: Language) => void;
   onAskAI?: () => void; showAI?: boolean;
   editorMode?: 'code' | 'diagram'; onToggleMode?: () => void;
+  onFormat?: () => void;
 }) {
   return (
     <div className="flex items-center justify-between border-b border-gray-800 px-3 sm:px-4 py-2">
@@ -598,6 +601,15 @@ function EditorToolbar({ handleReset, handleRun, isRunning, language, setLanguag
       <div className="flex items-center gap-2">
         {editorMode !== 'diagram' && (
           <>
+            {onFormat && (
+              <button
+                onClick={onFormat}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
+              >
+                <Code2 className="h-3.5 w-3.5" />
+                Format
+              </button>
+            )}
             <button
               onClick={handleReset}
               className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"

@@ -74,6 +74,13 @@ export function useCodeExecution() {
         console.error = function() { logs.push('ERROR: ' + Array.from(arguments).map(String).join(' ')); };
         console.warn = function() { logs.push('WARN: ' + Array.from(arguments).map(String).join(' ')); };
         console.info = function() { logs.push('INFO: ' + Array.from(arguments).map(String).join(' ')); };
+        console.assert = function(condition) {
+          if (!condition) {
+            const args = Array.from(arguments).slice(1);
+            const msg = args.length > 0 ? args.map(function(a) { return typeof a === 'object' ? JSON.stringify(a) : String(a); }).join(' ') : '';
+            logs.push('Assertion failed: ' + msg);
+          }
+        };
         try {
           const userCode = ${JSON.stringify(jsCode)};
           eval(userCode);
