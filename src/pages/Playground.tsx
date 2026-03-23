@@ -21,7 +21,7 @@ function loadFromHash(): { code: string; lang: Language } | null {
     const json = decompressFromEncodedURIComponent(hash);
     if (!json) return null;
     const parsed = JSON.parse(json);
-    return { code: parsed.c || '', lang: parsed.l || 'javascript' };
+    return { code: parsed.c || '', lang: parsed.l || 'typescript' };
   } catch {
     return null;
   }
@@ -39,7 +39,7 @@ export default function Playground() {
   const shared = loadFromHash();
 
   const [language, setLanguage] = useState<Language>(
-    () => shared?.lang || (localStorage.getItem(LANG_KEY) as Language) || 'javascript'
+    () => shared?.lang || (localStorage.getItem(LANG_KEY) as Language) || 'typescript'
   );
   const [code, setCode] = useState(() => shared?.code || localStorage.getItem(STORAGE_KEY) || '');
   const [problem, setProblem] = useState(() => localStorage.getItem(PROBLEM_KEY) || '');
@@ -47,7 +47,7 @@ export default function Playground() {
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const problemTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const editorRef = useRef<any>(null);
-  const { execute, output, errors, isRunning, execTimeMs } = useCodeExecution();
+  const { execute, output, errors, isRunning, execTimeMs, errorLine } = useCodeExecution();
   const [copied, setCopied] = useState(false);
   const [shared_, setShared] = useState(false);
   const [hasRun, setHasRun] = useState(false);
@@ -218,6 +218,7 @@ export default function Playground() {
                     onChange={handleCodeChange}
                     onMount={(editor) => { editorRef.current = editor; }}
                     onRun={handleRun}
+                    errorLine={errorLine}
                   />
                 </Panel>
                 <PanelResizeHandle className="group relative flex h-2 items-center justify-center bg-gray-900 hover:bg-gray-800 transition-colors">

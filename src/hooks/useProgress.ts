@@ -51,7 +51,7 @@ export function useProgress() {
   }, [progress]);
 
   const getSavedLanguage = useCallback((problemId: string): Language => {
-    return (progress[problemId]?.language as Language) || 'javascript';
+    return (progress[problemId]?.language as Language) || 'typescript';
   }, [progress]);
 
   const saveCode = useCallback((problemId: string, code: string, language: Language) => {

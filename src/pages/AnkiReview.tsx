@@ -415,7 +415,7 @@ function SolveCardView({
   const { execute, output, errors, testResults, isRunning, clearOutput } = useCodeExecution();
   const { updateStatus, getStatus } = useProgress();
   const [code, setCode] = useState((problem.starterCode || ''));
-  const [language, setLanguage] = useState<Language>('javascript');
+  const [language, setLanguage] = useState<Language>('typescript');
   const [hasRun, setHasRun] = useState(false);
   const [allPassed, setAllPassed] = useState(false);
 

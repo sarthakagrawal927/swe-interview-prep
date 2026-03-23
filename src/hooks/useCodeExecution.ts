@@ -13,6 +13,7 @@ interface ExecuteResult {
   errors: string | null;
   testResults: TestResult[];
   execTimeMs: number;
+  errorLine: number | null;
 }
 
 function transpileTS(code: string): { code: string | null; error: string | null } {
@@ -30,8 +31,9 @@ export function useCodeExecution() {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [execTimeMs, setExecTimeMs] = useState<number>(0);
+  const [errorLine, setErrorLine] = useState<number | null>(null);
 
-  const execute = useCallback((code: string, testCases: TestCase[], language: Language = 'javascript'): Promise<ExecuteResult> => {
+  const execute = useCallback((code: string, testCases: TestCase[], language: Language = 'typescript'): Promise<ExecuteResult> => {
     setIsRunning(true);
     setOutput('');
     setErrors(null);
@@ -42,8 +44,9 @@ export function useCodeExecution() {
       const { code: transpiled, error } = transpileTS(code);
       if (error) {
         setErrors('TypeScript Error: ' + error);
+        setErrorLine(null);
         setIsRunning(false);
-        return Promise.resolve({ output: '', errors: 'TypeScript Error: ' + error, testResults: [], execTimeMs: 0 });
+        return Promise.resolve({ output: '', errors: 'TypeScript Error: ' + error, testResults: [], execTimeMs: 0, errorLine: null });
       }
       jsCode = transpiled!;
     }
@@ -106,7 +109,12 @@ export function useCodeExecution() {
           parent.postMessage({ type: 'exec-result', output: logs.join('\\n'), errors: null, testResults: results, execTimeMs: _t1 - _t0 }, '*');
         } catch(e) {
           var _t1 = performance.now();
-          parent.postMessage({ type: 'exec-result', output: logs.join('\\n'), errors: e.message, testResults: [], execTimeMs: _t1 - _t0 }, '*');
+          var _errLine = null;
+          if (e.stack) {
+            var _m = e.stack.match(/eval.*?(\\d+):(\\d+)/);
+            if (_m) _errLine = parseInt(_m[1], 10);
+          }
+          parent.postMessage({ type: 'exec-result', output: logs.join('\\n'), errors: e.message, testResults: [], execTimeMs: _t1 - _t0, errorLine: _errLine }, '*');
         }
       </script></body></html>`;
 
@@ -116,13 +124,14 @@ export function useCodeExecution() {
           clearTimeout(timeout);
           window.removeEventListener('message', handler);
           document.body.removeChild(iframe);
-          const { output: out, errors: err, testResults: results, execTimeMs: time } = event.data;
+          const { output: out, errors: err, testResults: results, execTimeMs: time, errorLine: eLine } = event.data;
           setOutput(out || '');
           setErrors(err);
           setTestResults(results || []);
           setExecTimeMs(time || 0);
+          setErrorLine(eLine || null);
           setIsRunning(false);
-          resolve({ output: out, errors: err, testResults: results, execTimeMs: time || 0 });
+          resolve({ output: out, errors: err, testResults: results, execTimeMs: time || 0, errorLine: eLine || null });
         }
       };
       window.addEventListener('message', handler);
@@ -130,8 +139,9 @@ export function useCodeExecution() {
         window.removeEventListener('message', handler);
         if (iframe.parentNode) document.body.removeChild(iframe);
         setErrors('Execution timed out (5s limit)');
+        setErrorLine(null);
         setIsRunning(false);
-        resolve({ output: '', errors: 'Execution timed out (5s limit)', testResults: [], execTimeMs: 5000 });
+        resolve({ output: '', errors: 'Execution timed out (5s limit)', testResults: [], execTimeMs: 5000, errorLine: null });
       }, 5000);
       document.body.appendChild(iframe);
       iframe.srcdoc = html;
@@ -144,5 +154,5 @@ export function useCodeExecution() {
     setTestResults([]);
   }, []);
 
-  return { execute, output, errors, testResults, isRunning, execTimeMs, clearOutput };
+  return { execute, output, errors, testResults, isRunning, execTimeMs, errorLine, clearOutput };
 }

@@ -50,13 +50,13 @@ export default function ProblemView() {
   const catConfig = getCategoryConfig(category);
   const { getById, patterns } = useProblems(category);
   const { getStatus, updateStatus, getSavedCode, getSavedLanguage, saveCode } = useProgress();
-  const { execute, output, errors, testResults, isRunning, clearOutput } = useCodeExecution();
+  const { execute, output, errors, testResults, isRunning, errorLine, clearOutput } = useCodeExecution();
   const ai = useAI(id);
   const { notes: notesFromSupabase, saveNotes: saveNotesToSupabase } = useNotes(id);
 
   const problem = getById(id!);
   const [code, setCode] = useState('');
-  const [language, setLanguage] = useState<Language>('javascript');
+  const [language, setLanguage] = useState<Language>('typescript');
   const [showAI, setShowAI] = useState(false);
   const [notes, setNotesLocal] = useState('');
   const [expandedSteps, setExpandedSteps] = useState({});
@@ -249,6 +249,7 @@ export default function ProblemView() {
                       onValidate={handleValidation}
                       onMount={handleEditorMount}
                       onRun={handleRun}
+                      errorLine={errorLine}
                     />
                   )}
                 </div>
@@ -344,6 +345,7 @@ export default function ProblemView() {
                     onValidate={handleValidation}
                     onMount={handleEditorMount}
                     onRun={handleRun}
+                    errorLine={errorLine}
                     fontSize={13}
                   />
                 </div>

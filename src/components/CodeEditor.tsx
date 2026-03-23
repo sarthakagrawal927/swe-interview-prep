@@ -14,6 +14,7 @@ interface CodeEditorProps {
   onValidate?: (markers: any[]) => void;
   onRun?: () => void;
   fontSize?: number;
+  errorLine?: number | null;
 }
 
 export function formatCode(code: string, language: Language): Promise<string> {
@@ -35,9 +36,11 @@ export default function CodeEditor({
   onValidate,
   onRun,
   fontSize = 14,
+  errorLine,
 }: CodeEditorProps) {
   const editorRef = useRef<any>(null);
   const runRef = useRef<(() => void) | undefined>(undefined);
+  const decorationsRef = useRef<any>(null);
   runRef.current = onRun;
 
   const handleFormat = useCallback(async () => {
@@ -52,6 +55,12 @@ export default function CodeEditor({
       // formatting error — ignore silently
     }
   }, [language]);
+
+  // Cmd+S = format + run
+  const handleSave = useCallback(async () => {
+    await handleFormat();
+    runRef.current?.();
+  }, [handleFormat]);
 
   const handleMount = useCallback((editor: any) => {
     editorRef.current = editor;
@@ -69,9 +78,15 @@ export default function CodeEditor({
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
         run: () => handleFormat(),
       });
+      editor.addAction({
+        id: 'save-format-run',
+        label: 'Format & Run',
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+        run: () => handleSave(),
+      });
     }
     onMount?.(editor);
-  }, [onMount, handleFormat]);
+  }, [onMount, handleFormat, handleSave]);
 
   // Expose format on the editor instance for toolbar buttons
   useEffect(() => {
@@ -79,6 +94,30 @@ export default function CodeEditor({
       (editorRef.current as any).__prettierFormat = handleFormat;
     }
   }, [handleFormat]);
+
+  // Error line highlighting
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = (window as any).monaco;
+    if (!editor || !monaco) return;
+
+    if (errorLine && errorLine > 0) {
+      decorationsRef.current = editor.createDecorationsCollection([
+        {
+          range: new monaco.Range(errorLine, 1, errorLine, 1),
+          options: {
+            isWholeLine: true,
+            className: 'bg-red-500/15',
+            glyphMarginClassName: 'text-red-400',
+            overviewRuler: { color: '#ef4444', position: 1 },
+          },
+        },
+      ]);
+    } else if (decorationsRef.current) {
+      decorationsRef.current.clear();
+      decorationsRef.current = null;
+    }
+  }, [errorLine]);
 
   return (
     <Editor
@@ -98,10 +137,36 @@ export default function CodeEditor({
         automaticLayout: true,
         tabSize: 2,
         wordWrap: 'on',
+        // Autocomplete
         quickSuggestions: true,
         suggestOnTriggerCharacters: true,
         acceptSuggestionOnEnter: 'on',
         parameterHints: { enabled: true },
+        // Bracket pair colorization
+        bracketPairColorization: { enabled: true },
+        matchBrackets: 'always',
+        // Sticky scroll
+        stickyScroll: { enabled: true },
+        // Smooth cursor
+        cursorSmoothCaretAnimation: 'on',
+        cursorBlinking: 'smooth',
+        // Linked editing (rename tag pairs)
+        linkedEditing: true,
+        // Auto-close & surround
+        autoClosingBrackets: 'always',
+        autoClosingQuotes: 'always',
+        autoSurround: 'languageDefined',
+        // Guides
+        guides: {
+          bracketPairs: true,
+          indentation: true,
+        },
+        // Folding
+        folding: true,
+        foldingStrategy: 'indentation',
+        showFoldingControls: 'mouseover',
+        // Smooth scrolling
+        smoothScrolling: true,
       }}
     />
   );
