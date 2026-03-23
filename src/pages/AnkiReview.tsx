@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Editor from '@monaco-editor/react';
+import CodeEditor from '../components/CodeEditor';
 import { useProblems } from '../hooks/useProblems';
 import { useSpacedRepetition } from '../hooks/useSpacedRepetition';
 import { useCodeExecution } from '../hooks/useCodeExecution';
@@ -550,22 +550,12 @@ function SolveCardView({
             </div>
           </div>
           <div className="h-[250px] sm:h-[300px]">
-            <Editor
-              height="100%"
+            <CodeEditor
+              code={code}
               language={language}
-              theme="vs-dark"
-              value={code}
               onChange={(v) => setCode(v || '')}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 13,
-                lineNumbers: 'on',
-                scrollBeyondLastLine: false,
-                padding: { top: 8 },
-                automaticLayout: true,
-                tabSize: 2,
-                wordWrap: 'on',
-              }}
+              onRun={handleRun}
+              fontSize={13}
             />
           </div>
         </div>

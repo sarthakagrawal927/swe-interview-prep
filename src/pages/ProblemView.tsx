@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import Editor from '@monaco-editor/react';
+import CodeEditor from '../components/CodeEditor';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import { useProblems } from '../hooks/useProblems';
 import { useProgress } from '../hooks/useProgress';
@@ -120,8 +120,6 @@ export default function ProblemView() {
     setMarkers(newMarkers.filter(m => m.severity >= 8)); // errors only (8 = Error)
   }, []);
 
-  const runRef = useRef<() => void>(() => {});
-
   const handleEditorMount = useCallback((editor: any) => {
     editorRef.current = editor;
     editor.onDidChangeCursorSelection(() => {
@@ -133,21 +131,6 @@ export default function ProblemView() {
         setSelectedCode('');
       }
     });
-    const monaco = (window as any).monaco;
-    if (monaco) {
-      editor.addAction({
-        id: 'run-code',
-        label: 'Run Code',
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-        run: () => runRef.current(),
-      });
-      editor.addAction({
-        id: 'format-code',
-        label: 'Format Code',
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
-        run: () => editor.getAction('editor.action.formatDocument')?.run(),
-      });
-    }
   }, []);
 
   const handleRun = useCallback(async () => {
@@ -162,7 +145,6 @@ export default function ProblemView() {
     }
   }, [code, problem, isRunning, execute, getStatus, updateStatus, language]);
 
-  runRef.current = handleRun;
 
   const handleReset = () => {
     if (problem) {
@@ -253,31 +235,20 @@ export default function ProblemView() {
                   onAskAI={() => setShowAI(!showAI)}
                   showAI={showAI}
                   editorMode={editorMode}
-                  onFormat={() => editorRef.current?.getAction('editor.action.formatDocument')?.run()}
+                  onFormat={() => editorRef.current?.__prettierFormat?.()}
                   onToggleMode={category === 'hld' ? () => setEditorMode(m => m === 'code' ? 'diagram' : 'code') : undefined}
                 />
                 <div className="flex-1 min-h-0">
                   {editorMode === 'diagram' ? (
                     <DiagramEditor problemId={problem.id} onElementsChange={setDiagramElements} />
                   ) : (
-                    <Editor
-                      height="100%"
+                    <CodeEditor
+                      code={code}
                       language={language}
-                      theme="vs-dark"
-                      value={code}
                       onChange={handleCodeChange}
                       onValidate={handleValidation}
                       onMount={handleEditorMount}
-                      options={{
-                        minimap: { enabled: false },
-                        fontSize: 14,
-                        lineNumbers: 'on',
-                        scrollBeyondLastLine: false,
-                        padding: { top: 12 },
-                        automaticLayout: true,
-                        tabSize: 2,
-                        wordWrap: 'on',
-                      }}
+                      onRun={handleRun}
                     />
                   )}
                 </div>
@@ -363,27 +334,17 @@ export default function ProblemView() {
                   isRunning={isRunning}
                   language={language}
                   setLanguage={setLanguage}
-                  onFormat={() => editorRef.current?.getAction('editor.action.formatDocument')?.run()}
+                  onFormat={() => editorRef.current?.__prettierFormat?.()}
                 />
                 <div className="h-[300px]">
-                  <Editor
-                    height="100%"
+                  <CodeEditor
+                    code={code}
                     language={language}
-                    theme="vs-dark"
-                    value={code}
                     onChange={handleCodeChange}
                     onValidate={handleValidation}
                     onMount={handleEditorMount}
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 13,
-                      lineNumbers: 'on',
-                      scrollBeyondLastLine: false,
-                      padding: { top: 8 },
-                      automaticLayout: true,
-                      tabSize: 2,
-                      wordWrap: 'on',
-                    }}
+                    onRun={handleRun}
+                    fontSize={13}
                   />
                 </div>
                 <div className="border-t border-gray-800 bg-gray-900 p-3">

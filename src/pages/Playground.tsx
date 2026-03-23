@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
-import Editor from '@monaco-editor/react';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import DiagramEditor from '../components/DiagramEditor';
+import CodeEditor from '../components/CodeEditor';
 import { useCodeExecution } from '../hooks/useCodeExecution';
 import { Code2, PenTool, GripVertical, Play, Loader2 } from 'lucide-react';
 import type { Language } from '../types';
@@ -30,37 +30,13 @@ export default function Playground() {
     localStorage.setItem(LANG_KEY, lang);
   };
 
-  const runRef = useRef<() => void>(() => {});
-  runRef.current = () => {
+  const handleRun = useCallback(() => {
     if (isRunning) return;
     execute(code, [], language);
-  };
-
-  const handleRun = useCallback(() => runRef.current(), []);
+  }, [code, isRunning, execute, language]);
 
   const handleFormat = () => {
-    editorRef.current?.getAction('editor.action.formatDocument')?.run();
-  };
-
-  const handleEditorMount = (editor: any) => {
-    editorRef.current = editor;
-    const monaco = (window as any).monaco;
-    if (monaco) {
-      // Cmd/Ctrl+Enter = Run
-      editor.addAction({
-        id: 'run-code',
-        label: 'Run Code',
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-        run: () => runRef.current(),
-      });
-      // Cmd/Ctrl+Shift+F = Format
-      editor.addAction({
-        id: 'format-code',
-        label: 'Format Code',
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
-        run: () => editor.getAction('editor.action.formatDocument')?.run(),
-      });
-    }
+    editorRef.current?.__prettierFormat?.();
   };
 
   const langBtn = (active: boolean) =>
@@ -115,23 +91,12 @@ export default function Playground() {
         <Panel defaultSize={50} minSize={25}>
           <PanelGroup orientation="vertical">
             <Panel defaultSize={70} minSize={30}>
-              <Editor
-                height="100%"
+              <CodeEditor
+                code={code}
                 language={language}
-                theme="vs-dark"
-                value={code}
                 onChange={handleCodeChange}
-                onMount={handleEditorMount}
-                options={{
-                  fontSize: 14,
-                  minimap: { enabled: false },
-                  wordWrap: 'on',
-                  lineNumbers: 'on',
-                  scrollBeyondLastLine: false,
-                  padding: { top: 12 },
-                  automaticLayout: true,
-                  tabSize: 2,
-                }}
+                onMount={(editor) => { editorRef.current = editor; }}
+                onRun={handleRun}
               />
             </Panel>
             <PanelResizeHandle className="group relative flex h-2 items-center justify-center bg-gray-900 hover:bg-gray-800 transition-colors">
