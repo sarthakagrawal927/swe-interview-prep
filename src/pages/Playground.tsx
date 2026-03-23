@@ -1,9 +1,9 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import DiagramEditor from '../components/DiagramEditor';
 import CodeEditor from '../components/CodeEditor';
 import { useCodeExecution } from '../hooks/useCodeExecution';
-import { Code2, PenTool, GripVertical, Play, Loader2 } from 'lucide-react';
+import { Code2, PenTool, GripVertical, Play, Loader2, Copy, Check } from 'lucide-react';
 import type { Language } from '../types';
 
 const STORAGE_KEY = 'playground-code';
@@ -17,6 +17,8 @@ export default function Playground() {
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const editorRef = useRef<any>(null);
   const { execute, output, errors, isRunning } = useCodeExecution();
+  const [copied, setCopied] = useState(false);
+  const [hasRun, setHasRun] = useState(false);
 
   const handleCodeChange = useCallback((value: string | undefined) => {
     const v = value || '';
@@ -32,11 +34,19 @@ export default function Playground() {
 
   const handleRun = useCallback(() => {
     if (isRunning) return;
+    setHasRun(true);
     execute(code, [], language);
   }, [code, isRunning, execute, language]);
 
   const handleFormat = () => {
     editorRef.current?.__prettierFormat?.();
+  };
+
+  const handleCopy = () => {
+    const text = [output, errors].filter(Boolean).join('\n');
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   const langBtn = (active: boolean) =>
@@ -90,7 +100,7 @@ export default function Playground() {
       <PanelGroup orientation="horizontal" className="flex-1">
         <Panel defaultSize={50} minSize={25}>
           <PanelGroup orientation="vertical">
-            <Panel defaultSize={70} minSize={30}>
+            <Panel defaultSize={hasRun ? 60 : 85} minSize={30}>
               <CodeEditor
                 code={code}
                 language={language}
@@ -102,10 +112,19 @@ export default function Playground() {
             <PanelResizeHandle className="group relative flex h-2 items-center justify-center bg-gray-900 hover:bg-gray-800 transition-colors">
               <div className="h-0.5 w-8 rounded-full bg-gray-700 group-hover:bg-gray-500 transition-colors" />
             </PanelResizeHandle>
-            <Panel defaultSize={30} minSize={10}>
+            <Panel defaultSize={hasRun ? 40 : 15} minSize={10}>
               <div className="flex flex-col h-full overflow-y-auto bg-gray-900">
-                <div className="flex h-9 items-center border-b border-gray-800 px-4">
+                <div className="flex h-9 items-center justify-between border-b border-gray-800 px-4">
                   <span className="text-xs font-medium text-gray-400">Output</span>
+                  {(output || errors) && (
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-gray-500 transition-colors hover:bg-gray-800 hover:text-gray-300"
+                    >
+                      {copied ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+                      {copied ? 'Copied' : 'Copy'}
+                    </button>
+                  )}
                 </div>
                 <div className="p-4 font-mono text-xs">
                   {output && (

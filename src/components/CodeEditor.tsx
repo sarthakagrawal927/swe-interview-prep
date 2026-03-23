@@ -98,6 +98,10 @@ export default function CodeEditor({
         automaticLayout: true,
         tabSize: 2,
         wordWrap: 'on',
+        quickSuggestions: true,
+        suggestOnTriggerCharacters: true,
+        acceptSuggestionOnEnter: 'on',
+        parameterHints: { enabled: true },
       }}
     />
   );
