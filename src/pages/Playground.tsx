@@ -1,23 +1,40 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import DiagramEditor from '../components/DiagramEditor';
 import CodeEditor from '../components/CodeEditor';
 import { useCodeExecution } from '../hooks/useCodeExecution';
-import { Code2, PenTool, GripVertical, Play, Loader2, Copy, Check } from 'lucide-react';
+import { Code2, PenTool, GripVertical, Play, Loader2, Copy, Check, Share2, Clock } from 'lucide-react';
 import type { Language } from '../types';
 
 const STORAGE_KEY = 'playground-code';
 const LANG_KEY = 'playground-language';
 
+function loadFromHash(): { code: string; lang: Language } | null {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return null;
+  try {
+    const json = decompressFromEncodedURIComponent(hash);
+    if (!json) return null;
+    const parsed = JSON.parse(json);
+    return { code: parsed.c || '', lang: parsed.l || 'javascript' };
+  } catch {
+    return null;
+  }
+}
+
 export default function Playground() {
+  const shared = loadFromHash();
+
   const [language, setLanguage] = useState<Language>(
-    () => (localStorage.getItem(LANG_KEY) as Language) || 'javascript'
+    () => shared?.lang || (localStorage.getItem(LANG_KEY) as Language) || 'javascript'
   );
-  const [code, setCode] = useState(() => localStorage.getItem(STORAGE_KEY) || '');
+  const [code, setCode] = useState(() => shared?.code || localStorage.getItem(STORAGE_KEY) || '');
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const editorRef = useRef<any>(null);
-  const { execute, output, errors, isRunning } = useCodeExecution();
+  const { execute, output, errors, isRunning, execTimeMs } = useCodeExecution();
   const [copied, setCopied] = useState(false);
+  const [shared_, setShared] = useState(false);
   const [hasRun, setHasRun] = useState(false);
 
   const handleCodeChange = useCallback((value: string | undefined) => {
@@ -49,6 +66,18 @@ export default function Playground() {
     setTimeout(() => setCopied(false), 1500);
   };
 
+  const handleShare = () => {
+    const payload = JSON.stringify({ c: code, l: language });
+    const compressed = compressToEncodedURIComponent(payload);
+    const url = `${window.location.origin}/playground#${compressed}`;
+    navigator.clipboard.writeText(url);
+    window.history.replaceState(null, '', `/playground#${compressed}`);
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
+  };
+
+  const formatTime = (ms: number) => ms < 1 ? '<1ms' : ms < 1000 ? `${ms.toFixed(1)}ms` : `${(ms / 1000).toFixed(2)}s`;
+
   const langBtn = (active: boolean) =>
     `px-2 py-1 rounded text-xs font-medium transition-colors ${
       active ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'
@@ -74,6 +103,13 @@ export default function Playground() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
+          >
+            {shared_ ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Share2 className="h-3.5 w-3.5" />}
+            {shared_ ? 'Link copied!' : 'Share'}
+          </button>
           <button
             onClick={handleFormat}
             className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
@@ -115,7 +151,15 @@ export default function Playground() {
             <Panel defaultSize={hasRun ? 40 : 15} minSize={10}>
               <div className="flex flex-col h-full overflow-y-auto bg-gray-900">
                 <div className="flex h-9 items-center justify-between border-b border-gray-800 px-4">
-                  <span className="text-xs font-medium text-gray-400">Output</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-medium text-gray-400">Output</span>
+                    {hasRun && execTimeMs > 0 && (
+                      <span className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="h-3 w-3" />
+                        {formatTime(execTimeMs)}
+                      </span>
+                    )}
+                  </div>
                   {(output || errors) && (
                     <button
                       onClick={handleCopy}
