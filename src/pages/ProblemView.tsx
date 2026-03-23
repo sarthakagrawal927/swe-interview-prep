@@ -120,6 +120,8 @@ export default function ProblemView() {
     setMarkers(newMarkers.filter(m => m.severity >= 8)); // errors only (8 = Error)
   }, []);
 
+  const runRef = useRef<() => void>(() => {});
+
   const handleEditorMount = useCallback((editor: any) => {
     editorRef.current = editor;
     editor.onDidChangeCursorSelection(() => {
@@ -131,6 +133,21 @@ export default function ProblemView() {
         setSelectedCode('');
       }
     });
+    const monaco = (window as any).monaco;
+    if (monaco) {
+      editor.addAction({
+        id: 'run-code',
+        label: 'Run Code',
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+        run: () => runRef.current(),
+      });
+      editor.addAction({
+        id: 'format-code',
+        label: 'Format Code',
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
+        run: () => editor.getAction('editor.action.formatDocument')?.run(),
+      });
+    }
   }, []);
 
   const handleRun = useCallback(async () => {
@@ -144,6 +161,8 @@ export default function ProblemView() {
       updateStatus(problem.id, 'solved');
     }
   }, [code, problem, isRunning, execute, getStatus, updateStatus, language]);
+
+  runRef.current = handleRun;
 
   const handleReset = () => {
     if (problem) {
@@ -607,7 +626,7 @@ function EditorToolbar({ handleReset, handleRun, isRunning, language, setLanguag
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
               >
                 <Code2 className="h-3.5 w-3.5" />
-                Format
+                Format <span className="ml-1 text-gray-500">&#x21E7;&#x2318;F</span>
               </button>
             )}
             <button
@@ -627,7 +646,7 @@ function EditorToolbar({ handleReset, handleRun, isRunning, language, setLanguag
               ) : (
                 <Play className="h-3.5 w-3.5" />
               )}
-              Run
+              Run <span className="ml-1 opacity-70">&#x2318;&#x23CE;</span>
             </button>
           </>
         )}

@@ -30,10 +30,13 @@ export default function Playground() {
     localStorage.setItem(LANG_KEY, lang);
   };
 
-  const handleRun = useCallback(() => {
+  const runRef = useRef<() => void>(() => {});
+  runRef.current = () => {
     if (isRunning) return;
     execute(code, [], language);
-  }, [code, isRunning, execute, language]);
+  };
+
+  const handleRun = useCallback(() => runRef.current(), []);
 
   const handleFormat = () => {
     editorRef.current?.getAction('editor.action.formatDocument')?.run();
@@ -41,6 +44,23 @@ export default function Playground() {
 
   const handleEditorMount = (editor: any) => {
     editorRef.current = editor;
+    const monaco = (window as any).monaco;
+    if (monaco) {
+      // Cmd/Ctrl+Enter = Run
+      editor.addAction({
+        id: 'run-code',
+        label: 'Run Code',
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+        run: () => runRef.current(),
+      });
+      // Cmd/Ctrl+Shift+F = Format
+      editor.addAction({
+        id: 'format-code',
+        label: 'Format Code',
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
+        run: () => editor.getAction('editor.action.formatDocument')?.run(),
+      });
+    }
   };
 
   const langBtn = (active: boolean) =>
@@ -73,7 +93,7 @@ export default function Playground() {
             className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
           >
             <Code2 className="h-3.5 w-3.5" />
-            Format
+            Format <span className="ml-1 text-gray-500">&#x21E7;&#x2318;F</span>
           </button>
           <button
             onClick={handleRun}
@@ -85,7 +105,7 @@ export default function Playground() {
             ) : (
               <Play className="h-3.5 w-3.5" />
             )}
-            Run
+            Run <span className="ml-1 opacity-70">&#x2318;&#x23CE;</span>
           </button>
         </div>
       </div>
