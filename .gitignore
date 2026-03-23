@@ -26,4 +26,3 @@ dist-ssr
 
 # Library build artifacts
 .tmp-library
-src/data/library/*/content.json
