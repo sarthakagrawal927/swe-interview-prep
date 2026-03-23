@@ -650,7 +650,7 @@ export default function VibeLearning() {
             <select
               value={filters.pattern}
               onChange={e => updateFilters({ pattern: e.target.value })}
-              className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-200 focus:border-teal-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-950 pl-3 pr-8 py-2 text-sm text-gray-200 focus:border-teal-500 focus:outline-none"
             >
               <option value="all">All patterns</option>
               {availablePatternOptions.map(pattern => (
@@ -666,7 +666,7 @@ export default function VibeLearning() {
             <select
               value={filters.difficulty}
               onChange={e => updateFilters({ difficulty: e.target.value as VibeFilters['difficulty'] })}
-              className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-200 focus:border-teal-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-950 pl-3 pr-8 py-2 text-sm text-gray-200 focus:border-teal-500 focus:outline-none"
             >
               <option value="all">All difficulties</option>
               <option value="Easy">Easy</option>
@@ -680,7 +680,7 @@ export default function VibeLearning() {
             <select
               value={filters.quality}
               onChange={e => updateFilters({ quality: e.target.value as QualityMode })}
-              className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-200 focus:border-teal-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-950 pl-3 pr-8 py-2 text-sm text-gray-200 focus:border-teal-500 focus:outline-none"
             >
               <option value="high">High signal only</option>
               <option value="all">All items</option>
