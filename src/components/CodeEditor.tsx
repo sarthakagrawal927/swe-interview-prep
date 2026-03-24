@@ -46,6 +46,11 @@ export default function CodeEditor({
   const handleFormat = useCallback(async () => {
     const editor = editorRef.current;
     if (!editor) return;
+    if (language === 'go') {
+      // Prettier doesn't support Go — use Monaco's built-in formatter
+      editor.getAction('editor.action.formatDocument')?.run();
+      return;
+    }
     try {
       const formatted = await formatCode(editor.getValue(), language);
       const pos = editor.getPosition();

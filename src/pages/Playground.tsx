@@ -156,6 +156,7 @@ export default function Playground() {
               <div className="flex items-center gap-1 rounded-lg bg-gray-800 p-0.5">
                 <button onClick={() => handleLanguageChange('javascript')} className={langBtn(language === 'javascript')}>JS</button>
                 <button onClick={() => handleLanguageChange('typescript')} className={langBtn(language === 'typescript')}>TS</button>
+                <button onClick={() => handleLanguageChange('go')} className={langBtn(language === 'go')}>Go</button>
               </div>
             </>
           )}

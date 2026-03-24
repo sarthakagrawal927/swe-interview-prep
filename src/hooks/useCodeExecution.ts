@@ -33,11 +33,50 @@ export function useCodeExecution() {
   const [execTimeMs, setExecTimeMs] = useState<number>(0);
   const [errorLine, setErrorLine] = useState<number | null>(null);
 
+  const executeGo = useCallback(async (code: string): Promise<ExecuteResult> => {
+    const t0 = performance.now();
+    try {
+      const res = await fetch('/api/go-run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      const time = performance.now() - t0;
+      const out = data.output || '';
+      const err = data.errors || data.error || null;
+      // Extract line number from Go compile errors (e.g., "prog.go:5:3:")
+      let eLine: number | null = null;
+      if (err) {
+        const m = err.match(/prog\.go:(\d+)/);
+        if (m) eLine = parseInt(m[1], 10);
+      }
+      setOutput(out);
+      setErrors(err);
+      setTestResults([]);
+      setExecTimeMs(time);
+      setErrorLine(eLine);
+      setIsRunning(false);
+      return { output: out, errors: err, testResults: [], execTimeMs: time, errorLine: eLine };
+    } catch (e: any) {
+      const time = performance.now() - t0;
+      const err = 'Go execution failed: ' + e.message;
+      setErrors(err);
+      setErrorLine(null);
+      setIsRunning(false);
+      return { output: '', errors: err, testResults: [], execTimeMs: time, errorLine: null };
+    }
+  }, []);
+
   const execute = useCallback((code: string, testCases: TestCase[], language: Language = 'typescript'): Promise<ExecuteResult> => {
     setIsRunning(true);
     setOutput('');
     setErrors(null);
     setTestResults([]);
+
+    if (language === 'go') {
+      return executeGo(code);
+    }
 
     let jsCode = code;
     if (language === 'typescript') {

@@ -147,4 +147,4 @@ export interface AnkiCardWithMeta extends AnkiCard {
   pattern: string;
 }
 
-export type Language = 'javascript' | 'typescript';
+export type Language = 'javascript' | 'typescript' | 'go';
