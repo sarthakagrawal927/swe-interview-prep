@@ -73,7 +73,12 @@
       "Bash(turso auth login:*)",
       "Bash(turso db show:*)",
       "Bash(turso db tokens:*)",
-      "Bash(turso db shell:*)"
+      "Bash(turso db shell:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(gh api:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm update:*)"
     ]
   }
 }
