@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { transform } from 'sucrase';
+import { executeGo, type GoBackend } from '../lib/goExecutor';
 import type { TestCase, Language } from '../types';
 
 export interface TestResult extends TestCase {
@@ -32,41 +33,7 @@ export function useCodeExecution() {
   const [isRunning, setIsRunning] = useState(false);
   const [execTimeMs, setExecTimeMs] = useState<number>(0);
   const [errorLine, setErrorLine] = useState<number | null>(null);
-
-  const executeGo = useCallback(async (code: string): Promise<ExecuteResult> => {
-    const t0 = performance.now();
-    try {
-      const res = await fetch('/api/go-run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      });
-      const data = await res.json();
-      const time = performance.now() - t0;
-      const out = data.output || '';
-      const err = data.errors || data.error || null;
-      // Extract line number from Go compile errors (e.g., "prog.go:5:3:")
-      let eLine: number | null = null;
-      if (err) {
-        const m = err.match(/prog\.go:(\d+)/);
-        if (m) eLine = parseInt(m[1], 10);
-      }
-      setOutput(out);
-      setErrors(err);
-      setTestResults([]);
-      setExecTimeMs(time);
-      setErrorLine(eLine);
-      setIsRunning(false);
-      return { output: out, errors: err, testResults: [], execTimeMs: time, errorLine: eLine };
-    } catch (e: any) {
-      const time = performance.now() - t0;
-      const err = 'Go execution failed: ' + e.message;
-      setErrors(err);
-      setErrorLine(null);
-      setIsRunning(false);
-      return { output: '', errors: err, testResults: [], execTimeMs: time, errorLine: null };
-    }
-  }, []);
+  const [goBackend, setGoBackend] = useState<GoBackend>('api');
 
   const execute = useCallback((code: string, testCases: TestCase[], language: Language = 'typescript'): Promise<ExecuteResult> => {
     setIsRunning(true);
@@ -75,7 +42,16 @@ export function useCodeExecution() {
     setTestResults([]);
 
     if (language === 'go') {
-      return executeGo(code);
+      return executeGo(code).then((result) => {
+        setOutput(result.output);
+        setErrors(result.errors);
+        setTestResults([]);
+        setExecTimeMs(result.execTimeMs);
+        setErrorLine(result.errorLine);
+        setGoBackend(result.backend);
+        setIsRunning(false);
+        return { output: result.output, errors: result.errors, testResults: [], execTimeMs: result.execTimeMs, errorLine: result.errorLine };
+      });
     }
 
     let jsCode = code;
@@ -193,5 +169,5 @@ export function useCodeExecution() {
     setTestResults([]);
   }, []);
 
-  return { execute, output, errors, testResults, isRunning, execTimeMs, errorLine, clearOutput };
+  return { execute, output, errors, testResults, isRunning, execTimeMs, errorLine, goBackend, clearOutput };
 }

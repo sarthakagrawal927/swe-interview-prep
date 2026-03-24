@@ -48,7 +48,7 @@ export default function Playground() {
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const problemTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const editorRef = useRef<any>(null);
-  const { execute, output, errors, isRunning, execTimeMs, errorLine } = useCodeExecution();
+  const { execute, output, errors, isRunning, execTimeMs, errorLine, goBackend } = useCodeExecution();
   const [copied, setCopied] = useState(false);
   const [shared_, setShared] = useState(false);
   const [hasRun, setHasRun] = useState(false);
@@ -268,6 +268,15 @@ export default function Playground() {
                           {hasRun && execTimeMs > 0 && (
                             <span className="ml-1.5 text-gray-500">
                               {formatTime(execTimeMs)}
+                            </span>
+                          )}
+                          {hasRun && language === 'go' && (
+                            <span className={`ml-1.5 rounded px-1 text-[10px] font-bold ${
+                              goBackend === 'wasm' ? 'bg-green-500/20 text-green-400' :
+                              goBackend === 'wasm-loading' ? 'bg-blue-500/20 text-blue-400' :
+                              'bg-gray-700 text-gray-400'
+                            }`}>
+                              {goBackend === 'wasm' ? 'LOCAL' : goBackend === 'wasm-loading' ? 'API (loading WASM...)' : 'API'}
                             </span>
                           )}
                         </button>
