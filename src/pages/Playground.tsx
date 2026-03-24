@@ -4,7 +4,7 @@ import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from
 import DiagramEditor from '../components/DiagramEditor';
 import CodeEditor from '../components/CodeEditor';
 import { useCodeExecution } from '../hooks/useCodeExecution';
-import { Code2, PenTool, GripVertical, Play, Loader2, Copy, Check, Share2, Clock, FileText, Eye, Pencil } from 'lucide-react';
+import { Code2, PenTool, GripVertical, Play, Loader2, Copy, Check, Share2, Clock, FileText, Eye, Pencil, AlertTriangle } from 'lucide-react';
 import MarkdownViewer from '../components/MarkdownViewer';
 import type { Language } from '../types';
 
@@ -53,6 +53,8 @@ export default function Playground() {
   const [shared_, setShared] = useState(false);
   const [hasRun, setHasRun] = useState(false);
   const [problemPreview, setProblemPreview] = useState(false);
+  const [bottomTab, setBottomTab] = useState<'output' | 'problems'>('output');
+  const [markers, setMarkers] = useState<any[]>([]);
 
   const togglePanel = (id: PanelId) => {
     setVisiblePanels(prev => {
@@ -90,8 +92,13 @@ export default function Playground() {
   const handleRun = useCallback(() => {
     if (isRunning) return;
     setHasRun(true);
+    setBottomTab('output');
     execute(code, [], language);
   }, [code, isRunning, execute, language]);
+
+  const handleValidation = useCallback((newMarkers: any[]) => {
+    setMarkers(newMarkers.filter((m: any) => m.severity >= 8));
+  }, []);
 
   const handleFormat = () => {
     editorRef.current?.__prettierFormat?.();
@@ -239,6 +246,7 @@ export default function Playground() {
                     language={language}
                     onChange={handleCodeChange}
                     onMount={(editor) => { editorRef.current = editor; }}
+                    onValidate={handleValidation}
                     onRun={handleRun}
                     errorLine={errorLine}
                   />
@@ -249,16 +257,39 @@ export default function Playground() {
                 <Panel defaultSize={hasRun ? 40 : 15} minSize={10}>
                   <div className="flex flex-col h-full overflow-y-auto bg-gray-900">
                     <div className="flex h-9 items-center justify-between border-b border-gray-800 px-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-medium text-gray-400">Output</span>
-                        {hasRun && execTimeMs > 0 && (
-                          <span className="flex items-center gap-1 text-xs text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            {formatTime(execTimeMs)}
-                          </span>
-                        )}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setBottomTab('output')}
+                          className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+                            bottomTab === 'output' ? 'bg-gray-800 text-gray-200' : 'text-gray-500 hover:text-gray-300'
+                          }`}
+                        >
+                          Output
+                          {hasRun && execTimeMs > 0 && (
+                            <span className="ml-1.5 text-gray-500">
+                              {formatTime(execTimeMs)}
+                            </span>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setBottomTab('problems')}
+                          className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors ${
+                            bottomTab === 'problems'
+                              ? 'bg-gray-800 text-gray-200'
+                              : markers.length > 0 ? 'text-yellow-400 hover:text-yellow-300' : 'text-gray-500 hover:text-gray-300'
+                          }`}
+                        >
+                          Problems
+                          {markers.length > 0 && (
+                            <span className={`rounded-full px-1.5 text-[10px] font-bold ${
+                              bottomTab === 'problems' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {markers.length}
+                            </span>
+                          )}
+                        </button>
                       </div>
-                      {(output || errors) && (
+                      {bottomTab === 'output' && (output || errors) && (
                         <button
                           onClick={handleCopy}
                           className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-gray-500 transition-colors hover:bg-gray-800 hover:text-gray-300"
@@ -268,23 +299,56 @@ export default function Playground() {
                         </button>
                       )}
                     </div>
-                    <div className="p-4 font-mono text-xs">
-                      {output && (
-                        <pre className="whitespace-pre-wrap rounded-lg bg-gray-950 p-3 text-gray-300">
-                          {output}
-                        </pre>
-                      )}
-                      {errors && (
-                        <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-500/10 p-3 text-red-400">
-                          {errors}
-                        </pre>
-                      )}
-                      {!output && !errors && (
-                        <div className="flex items-center justify-center py-8 text-sm text-gray-600">
-                          Click "Run" to execute your code.
-                        </div>
-                      )}
-                    </div>
+
+                    {bottomTab === 'output' && (
+                      <div className="p-4 font-mono text-xs">
+                        {output && (
+                          <pre className="whitespace-pre-wrap rounded-lg bg-gray-950 p-3 text-gray-300">
+                            {output}
+                          </pre>
+                        )}
+                        {errors && (
+                          <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-500/10 p-3 text-red-400">
+                            {errors}
+                          </pre>
+                        )}
+                        {!output && !errors && (
+                          <div className="flex items-center justify-center py-8 text-sm text-gray-600">
+                            Click "Run" to execute your code.
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {bottomTab === 'problems' && (
+                      <div className="p-4">
+                        {markers.length === 0 ? (
+                          <div className="flex items-center justify-center py-8 text-sm text-gray-600">
+                            No problems detected.
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {markers.map((m: any, i: number) => (
+                              <div
+                                key={i}
+                                className="flex items-start gap-2 rounded-lg border border-yellow-500/20 bg-yellow-500/5 px-3 py-2 cursor-pointer hover:bg-yellow-500/10 transition-colors"
+                                onClick={() => {
+                                  editorRef.current?.revealLineInCenter(m.startLineNumber);
+                                  editorRef.current?.setPosition({ lineNumber: m.startLineNumber, column: m.startColumn });
+                                  editorRef.current?.focus();
+                                }}
+                              >
+                                <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 text-yellow-400 mt-0.5" />
+                                <div className="text-xs">
+                                  <span className="text-yellow-500 font-mono">Ln {m.startLineNumber}, Col {m.startColumn}</span>
+                                  <span className="text-gray-400 ml-2">{m.message}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </Panel>
               </PanelGroup>
