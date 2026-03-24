@@ -4,7 +4,8 @@ import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from
 import DiagramEditor from '../components/DiagramEditor';
 import CodeEditor from '../components/CodeEditor';
 import { useCodeExecution } from '../hooks/useCodeExecution';
-import { Code2, PenTool, GripVertical, Play, Loader2, Copy, Check, Share2, Clock, FileText } from 'lucide-react';
+import { Code2, PenTool, GripVertical, Play, Loader2, Copy, Check, Share2, Clock, FileText, Eye, Pencil } from 'lucide-react';
+import MarkdownViewer from '../components/MarkdownViewer';
 import type { Language } from '../types';
 
 const STORAGE_KEY = 'playground-code';
@@ -51,6 +52,7 @@ export default function Playground() {
   const [copied, setCopied] = useState(false);
   const [shared_, setShared] = useState(false);
   const [hasRun, setHasRun] = useState(false);
+  const [problemPreview, setProblemPreview] = useState(false);
 
   const togglePanel = (id: PanelId) => {
     setVisiblePanels(prev => {
@@ -198,15 +200,34 @@ export default function Playground() {
           <PanelWrapper key={id} id={id} index={i} total={panels.length} defaultSize={panelSize}>
             {id === 'problem' && (
               <div className="flex flex-col h-full bg-gray-950">
-                <div className="flex h-9 items-center border-b border-gray-800 px-4">
+                <div className="flex h-9 items-center justify-between border-b border-gray-800 px-4">
                   <span className="text-xs font-medium text-gray-400">Problem Statement</span>
+                  <button
+                    onClick={() => setProblemPreview(!problemPreview)}
+                    className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-gray-500 transition-colors hover:bg-gray-800 hover:text-gray-300"
+                  >
+                    {problemPreview ? <Pencil className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    {problemPreview ? 'Edit' : 'Preview'}
+                  </button>
                 </div>
-                <textarea
-                  value={problem}
-                  onChange={handleProblemChange}
-                  placeholder="Paste your problem statement here..."
-                  className="flex-1 resize-none bg-transparent p-4 text-sm text-gray-200 placeholder-gray-600 focus:outline-none font-mono leading-relaxed"
-                />
+                {problemPreview ? (
+                  <div className="flex-1 overflow-y-auto p-4">
+                    {problem ? (
+                      <MarkdownViewer content={problem} />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-sm text-gray-600">
+                        Nothing to preview.
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <textarea
+                    value={problem}
+                    onChange={handleProblemChange}
+                    placeholder="Paste your problem statement here (supports Markdown)..."
+                    className="flex-1 resize-none bg-transparent p-4 text-sm text-gray-200 placeholder-gray-600 focus:outline-none font-mono leading-relaxed"
+                  />
+                )}
               </div>
             )}
             {id === 'code' && (
