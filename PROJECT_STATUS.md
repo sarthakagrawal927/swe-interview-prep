@@ -1,6 +1,17 @@
 # swe-interview-prep — PROJECT_STATUS
 
-Last updated: 2026-08-31
+Last updated: 2026-09-07
+
+## Exercise qualification
+
+The drill editor now restores asynchronously loaded saved code without
+replacing a learner's edits, and changing drills creates a fresh workspace.
+[The executable evidence and limits](docs/knowledge/exercise-persistence-qualification.md)
+cover actual grading, local completion storage and remount. Full local quality
+passes 598 tests; live qualification and generic remote reconciliation remain
+[#97](https://github.com/Significant-Hobbies/swe-interview-prep/issues/97) and
+[#98](https://github.com/Significant-Hobbies/swe-interview-prep/issues/98).
+No deployment or existing learner-data mutation occurred.
 
 ## Why/What
 

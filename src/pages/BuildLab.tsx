@@ -79,7 +79,7 @@ export function resolveBuildLabView(
 export default function BuildLab() {
   const { id } = useParams();
   const view = resolveBuildLabView(id);
-  if (view === 'drill-workspace') return <DrillWorkspace drillId={id ?? ''} />;
+  if (view === 'drill-workspace') return <DrillWorkspace key={id} drillId={id ?? ''} />;
   if (view === 'not-found') return <EmptyState title="Drill not found" />;
   return <ArtifactBoard />;
 }
@@ -329,7 +329,10 @@ function DrillWorkspace({ drillId }: { drillId: string }) {
   const [showSolution, setShowSolution] = useState(false);
   const entry = getDrill(drillId);
   const [language, setLanguage] = useState<Language>('typescript');
-  const [code, setCode] = useState(entry.lastCode || STARTER.typescript);
+  // An untouched editor follows asynchronously restored account progress.
+  // Once edited, including an intentional empty draft, it belongs to the learner.
+  const [draft, setCode] = useState<string | null>(null);
+  const code = draft ?? (entry.lastCode || STARTER.typescript);
   const [testMessage, setTestMessage] = useState<string | null>(null);
   // Post-solve Feynman flow: a skippable explain-back nudge that opens the gate.
   const [showExplainNudge, setShowExplainNudge] = useState(false);

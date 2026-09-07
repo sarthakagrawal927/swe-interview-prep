@@ -9,6 +9,20 @@ JavaScript or sign-in.
 
 A comprehensive interview preparation platform for mastering DSA, Low-Level Design, System Design, and Behavioral interviews.
 
+## Current qualification and tasks
+
+The drill journey now has [executable grading/persistence evidence](docs/knowledge/exercise-persistence-qualification.md),
+including reload and two repaired editor-resume regressions. Source and CI
+checks do not qualify hosted account persistence.
+
+- [#97 — live exercise/account qualification](https://github.com/Significant-Hobbies/swe-interview-prep/issues/97):
+  awaits approved deployment and a fresh guest/account browser journey.
+- [#98 — retain unsynced local edits](https://github.com/Significant-Hobbies/swe-interview-prep/issues/98):
+  remote reconciliation still needs an account-aware pending-write contract.
+
+The task reconciliation found no prior open Issues or PRs; no historical
+product intention was closed as complete.
+
 ## Problem
 
 Technical interview preparation is fragmented across multiple tools: LeetCode for coding, Excalidraw for diagrams, ChatGPT for hints, and Anki for spaced repetition. Switching between tools breaks flow and makes it hard to track progress holistically.
