@@ -92,7 +92,7 @@
       "repoName": "LM Evaluation Harness",
       "sectionId": "readme-md-language-model-evaluation-harness-latest-news",
       "title": "Latest News 📣",
-      "snippet": "## Latest News 📣 - [2025/12] **CLI refactored** with subcommands (`run`, `ls`, `validate`) and YAML config file support via `--config`. See the [CLI Reference](https://github.com/EleutherAI/lm-evalua…"
+      "snippet": "## Latest News 📣 - [2026/09] **Plugins**: model backends, filters, metrics and aggregations can now be registered from your own package instead of forking — declare an `lm_eval.*` entry point for zer…"
     }
   ],
   "http-lifecycle": [

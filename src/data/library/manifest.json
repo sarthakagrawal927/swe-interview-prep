@@ -17,7 +17,7 @@
       "format": "qa",
       "sectionCount": 518,
       "exerciseCount": 518,
-      "lastFetched": "2026-08-31T11:54:22.535Z"
+      "lastFetched": "2026-09-07T10:47:24.946Z"
     },
     {
       "id": "react-questions",
@@ -34,9 +34,9 @@
       ],
       "icon": "Atom",
       "format": "qa",
-      "sectionCount": 419,
-      "exerciseCount": 419,
-      "lastFetched": "2026-08-31T11:54:23.505Z"
+      "sectionCount": 444,
+      "exerciseCount": 444,
+      "lastFetched": "2026-09-07T10:47:26.468Z"
     },
     {
       "id": "frontend-handbook",
@@ -57,7 +57,7 @@
       "format": "code-heavy",
       "sectionCount": 55,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:24.134Z"
+      "lastFetched": "2026-09-07T10:47:27.662Z"
     },
     {
       "id": "system-design",
@@ -76,7 +76,7 @@
       "format": "long-form",
       "sectionCount": 241,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:25.461Z"
+      "lastFetched": "2026-09-07T10:47:28.573Z"
     },
     {
       "id": "system-design-101",
@@ -95,7 +95,7 @@
       "format": "code-heavy",
       "sectionCount": 416,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:25.849Z"
+      "lastFetched": "2026-09-07T10:47:29.281Z"
     },
     {
       "id": "low-level-design",
@@ -114,7 +114,7 @@
       "format": "code-heavy",
       "sectionCount": 262,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:26.725Z"
+      "lastFetched": "2026-09-07T10:47:30.497Z"
     },
     {
       "id": "grokking-oop",
@@ -133,7 +133,7 @@
       "format": "code-heavy",
       "sectionCount": 63,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:27.318Z"
+      "lastFetched": "2026-09-07T10:47:32.091Z"
     },
     {
       "id": "devops-exercises",
@@ -154,7 +154,7 @@
       "format": "qa",
       "sectionCount": 49,
       "exerciseCount": 1888,
-      "lastFetched": "2026-08-31T11:54:27.846Z"
+      "lastFetched": "2026-09-07T10:47:33.409Z"
     },
     {
       "id": "coding-interview-patterns",
@@ -174,7 +174,7 @@
       "format": "code-heavy",
       "sectionCount": 20,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:28.243Z"
+      "lastFetched": "2026-09-07T10:47:34.052Z"
     },
     {
       "id": "ood-interview",
@@ -194,7 +194,7 @@
       "format": "code-heavy",
       "sectionCount": 24,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:28.555Z"
+      "lastFetched": "2026-09-07T10:47:34.613Z"
     },
     {
       "id": "system-design-primer",
@@ -213,7 +213,7 @@
       "format": "code-heavy",
       "sectionCount": 40,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:29.098Z"
+      "lastFetched": "2026-09-07T10:47:35.505Z"
     },
     {
       "id": "javascript-algorithms",
@@ -232,7 +232,7 @@
       "format": "visual",
       "sectionCount": 120,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:29.663Z"
+      "lastFetched": "2026-09-07T10:47:36.482Z"
     },
     {
       "id": "tech-interview-handbook",
@@ -252,7 +252,7 @@
       "format": "code-heavy",
       "sectionCount": 90,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:30.342Z"
+      "lastFetched": "2026-09-07T10:47:37.817Z"
     },
     {
       "id": "project-based-learning",
@@ -272,7 +272,7 @@
       "format": "code-heavy",
       "sectionCount": 22,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:30.622Z"
+      "lastFetched": "2026-09-07T10:47:38.331Z"
     },
     {
       "id": "math-for-ml",
@@ -291,7 +291,7 @@
       "format": "long-form",
       "sectionCount": 1,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:30.897Z"
+      "lastFetched": "2026-09-07T10:47:38.817Z"
     },
     {
       "id": "awesome-vector-search",
@@ -310,7 +310,7 @@
       "format": "long-form",
       "sectionCount": 2,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:31.168Z"
+      "lastFetched": "2026-09-07T10:47:39.333Z"
     },
     {
       "id": "ann-benchmarks",
@@ -329,7 +329,7 @@
       "format": "visual",
       "sectionCount": 1,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:31.539Z"
+      "lastFetched": "2026-09-07T10:47:40.069Z"
     },
     {
       "id": "awesome-ai-agents",
@@ -348,7 +348,7 @@
       "format": "long-form",
       "sectionCount": 219,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:31.965Z"
+      "lastFetched": "2026-09-07T10:47:40.776Z"
     },
     {
       "id": "model-context-protocol",
@@ -367,7 +367,7 @@
       "format": "code-heavy",
       "sectionCount": 143,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:34.151Z"
+      "lastFetched": "2026-09-07T10:47:43.407Z"
     },
     {
       "id": "openai-evals",
@@ -386,7 +386,7 @@
       "format": "code-heavy",
       "sectionCount": 46,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:53.257Z"
+      "lastFetched": "2026-09-07T10:48:26.198Z"
     },
     {
       "id": "lm-eval-harness",
@@ -403,9 +403,9 @@
       ],
       "icon": "Ruler",
       "format": "code-heavy",
-      "sectionCount": 284,
+      "sectionCount": 286,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:55.117Z"
+      "lastFetched": "2026-09-07T10:48:28.555Z"
     },
     {
       "id": "garak",
@@ -424,7 +424,7 @@
       "format": "code-heavy",
       "sectionCount": 66,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:55.818Z"
+      "lastFetched": "2026-09-07T10:48:29.487Z"
     },
     {
       "id": "missing-semester",
@@ -444,7 +444,7 @@
       "format": "code-heavy",
       "sectionCount": 198,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:56.440Z"
+      "lastFetched": "2026-09-07T10:48:30.548Z"
     },
     {
       "id": "build-your-own-x",
@@ -463,7 +463,7 @@
       "format": "long-form",
       "sectionCount": 4,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:56.751Z"
+      "lastFetched": "2026-09-07T10:48:31.484Z"
     },
     {
       "id": "node-best-practices",
@@ -482,7 +482,7 @@
       "format": "code-heavy",
       "sectionCount": 757,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:54:57.513Z"
+      "lastFetched": "2026-09-07T10:48:32.540Z"
     },
     {
       "id": "cs231n",
@@ -501,7 +501,7 @@
       "format": "code-heavy",
       "sectionCount": 134,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:55:01.082Z"
+      "lastFetched": "2026-09-07T10:48:38.132Z"
     },
     {
       "id": "vllm",
@@ -518,10 +518,10 @@
       ],
       "icon": "Cpu",
       "format": "code-heavy",
-      "sectionCount": 498,
+      "sectionCount": 501,
       "exerciseCount": 0,
-      "lastFetched": "2026-08-31T11:55:05.914Z"
+      "lastFetched": "2026-09-07T10:48:42.914Z"
     }
   ],
-  "generatedAt": "2026-08-31T11:54:22.071Z"
+  "generatedAt": "2026-09-07T10:47:24.118Z"
 }
