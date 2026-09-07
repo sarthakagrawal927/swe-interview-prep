@@ -7,10 +7,20 @@ Last updated: 2026-09-07
 The drill editor now restores asynchronously loaded saved code without
 replacing a learner's edits, and changing drills creates a fresh workspace.
 [The executable evidence and limits](docs/knowledge/exercise-persistence-qualification.md)
-cover actual grading, local completion storage and remount. Full local quality
-passes 598 tests; live qualification and generic remote reconciliation remain
-[#97](https://github.com/Significant-Hobbies/swe-interview-prep/issues/97) and
-[#98](https://github.com/Significant-Hobbies/swe-interview-prep/issues/98).
+cover actual grading, local completion storage and remount. The follow-up
+[#98](https://github.com/Significant-Hobbies/swe-interview-prep/issues/98) repair
+adds durable account-scoped outboxes, retry status, and atomic operation receipts
+for drill/artifact/project writes. Actual handlers run against isolated SQLite
+in the persistence tests, including failed writes, lost acknowledgements, delayed
+responses, storage failure, reload, and account isolation. Full `pnpm quality`
+passed 607 tests across 95 files; the final rollback test passed in the
+11-test handler/import run.
+
+Apply additive D1 migration `0003_record_sync_receipts.sql` before a future
+approved deployment. Hosted qualification, mobile/editor interaction, and
+concurrent-tab/cross-device behavior remain
+[#97](https://github.com/Significant-Hobbies/swe-interview-prep/issues/97).
+The repair covers one active tab and excludes notes/mastery/ELO sync.
 No deployment or existing learner-data mutation occurred.
 
 ## Why/What

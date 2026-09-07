@@ -18,7 +18,20 @@ checks do not qualify hosted account persistence.
 - [#97 — live exercise/account qualification](https://github.com/Significant-Hobbies/swe-interview-prep/issues/97):
   awaits approved deployment and a fresh guest/account browser journey.
 - [#98 — retain unsynced local edits](https://github.com/Significant-Hobbies/swe-interview-prep/issues/98):
-  remote reconciliation still needs an account-aware pending-write contract.
+  implemented with account-scoped durable pending operations, serialized retries,
+  and atomic server receipts; see the evidence below.
+
+Drill, artifact, and project edits now show local-only, pending, failed, or
+synced status. Pending account edits survive reload and retry on reconnect or
+with **Retry sync**. Account changes hide the prior account’s records and drafts.
+Older unscoped progress remains available when signed out; it is not silently
+attributed to whichever account signs in next.
+
+**Rollout prerequisite:** apply additive D1 migration
+`0003_record_sync_receipts.sql` before deploying the new handlers/client. No
+remote migration or deployment has been performed. This contract covers one
+active browser tab; concurrent-tab and cross-device conflict resolution, notes,
+mastery, and ELO are outside this repair. Hosted qualification remains #97.
 
 The task reconciliation found no prior open Issues or PRs; no historical
 product intention was closed as complete.

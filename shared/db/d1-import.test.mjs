@@ -26,4 +26,9 @@ describe('D1 import preparation', () => {
       'Unexpected source table'
     );
   });
+
+  it('preserves operation receipts so restored progress cannot replay old attempts', () => {
+    const receipt = "INSERT INTO record_sync_receipts VALUES('user-1','operation-1','2026-09-07');";
+    expect(prepareD1Import(receipt).sql).toContain(receipt);
+  });
 });

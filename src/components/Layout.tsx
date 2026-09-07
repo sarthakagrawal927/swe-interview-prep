@@ -7,6 +7,7 @@ import { focusedRoute } from '../lib/focusedRoute';
 import { recordRecentVisit } from '../lib/recentVisits';
 import { STORE_KEYS, loadLocal } from '../lib/userStore';
 import { SiteHeader } from './SiteHeader';
+import { RecordSyncStatus } from './RecordSyncStatus';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 // SettingsModal imports ImportAndNotifySettings + LearningProfileSettings,
@@ -108,6 +109,7 @@ export default function Layout() {
           </div>
         )}
 
+        <RecordSyncStatus />
         <main id="main-content" className="min-h-[calc(100vh-4rem)]">
           <Outlet />
         </main>

@@ -8,6 +8,14 @@ export function createD1Client(database) {
   }
 
   return {
+    async batch(statements) {
+      const prepared = statements.map(({ sql, args = [] }) => database.prepare(sql).bind(...args));
+      const results = await database.batch(prepared);
+      return results.map((result) => ({
+        rows: result.results ?? [],
+        rowsAffected: result.meta?.changes ?? 0,
+      }));
+    },
     async execute(statement) {
       const sql = typeof statement === 'string' ? statement : statement?.sql;
       const args = typeof statement === 'string' ? [] : (statement?.args ?? []);

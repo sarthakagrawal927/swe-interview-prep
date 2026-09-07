@@ -1,77 +1,28 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { activateRecordAccount, getRecordStore, type RecordSyncConfig } from '../lib/recordSync';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 
 import { useAuth } from '../contexts/AuthContext';
 import { learningFetch } from '../lib/learningApi';
 import type { ArtifactStatus, DrillStatus, ProjectStatus } from '../data/learning-os';
 import { DEFAULT_USER_ELO, updatePlayerElo } from '../lib/elo';
-import {
-  loadLocal,
-  type MergeableNote,
-  mergeNotes,
-  mergeRecords,
-  saveLocal,
-  STORE_KEYS,
-} from '../lib/userStore';
+import { loadLocal, type MergeableNote, mergeNotes, saveLocal, STORE_KEYS } from '../lib/userStore';
 
 // ---------------------------------------------------------------------------
 // Generic record store: localStorage-first, DB-synced when signed in.
 // ---------------------------------------------------------------------------
 
-interface RecordStoreConfig<T> {
-  localKey: string;
-  action: string;
-  field: string;
-  toPayload: (id: string, entry: T) => Record<string, unknown>;
-}
-
-function useRecordStore<T>(config: RecordStoreConfig<T>) {
-  const { localKey, action, field, toPayload } = config;
-  const { user } = useAuth();
-  const [data, setData] = useState<Record<string, T>>(() => loadLocal(localKey, {}));
-  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-
-  // On sign-in: pull DB state and merge it over local (DB wins, local fills gaps).
-  const load = useCallback(async () => {
-    if (!user) return;
-    try {
-      const res = await fetch(`/api/learning?action=${action}`, { credentials: 'include' });
-      if (!res.ok) return;
-      const d = await res.json();
-      const merged = mergeRecords(loadLocal<Record<string, T>>(localKey, {}), d[field] || {});
-      setData(merged);
-      saveLocal(localKey, merged);
-    } catch {
-      // Offline / no endpoint — keep localStorage state.
-    }
-  }, [user, action, field, localKey]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const set = useCallback(
-    (id: string, entry: T) => {
-      setData((prev) => {
-        const next = { ...prev, [id]: entry };
-        saveLocal(localKey, next);
-        return next;
-      });
-      if (!user) return;
-      // Debounce DB writes per id so rapid edits collapse into one request.
-      if (timers.current[id]) clearTimeout(timers.current[id]);
-      timers.current[id] = setTimeout(() => {
-        void fetch(`/api/learning?action=${action}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(toPayload(id, entry)),
-        }).catch(() => {});
-      }, 500);
-    },
-    [user, action, localKey, toPayload]
-  );
-
-  return { data, set };
+function useRecordStore<T>(config: RecordSyncConfig<T>) {
+  const { user, loading } = useAuth();
+  const store = getRecordStore(config, user?.id ?? null);
+  useEffect(() => activateRecordAccount(loading ? null : (user?.id ?? null)), [user?.id, loading]);
+  const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  return {
+    data: snapshot.data,
+    set: (id: string, entry: T | ((previous: T | undefined) => T)) => store.set(id, entry),
+    syncStatus: snapshot.status,
+    syncError: snapshot.error,
+    retrySync: store.retry,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -94,7 +45,7 @@ const EMPTY_ARTIFACT: ArtifactEntry = {
   criteria: [],
 };
 
-const ARTIFACT_CONFIG: RecordStoreConfig<ArtifactEntry> = {
+const ARTIFACT_CONFIG: RecordSyncConfig<ArtifactEntry> = {
   localKey: STORE_KEYS.artifacts,
   action: 'artifacts',
   field: 'artifacts',
@@ -102,8 +53,9 @@ const ARTIFACT_CONFIG: RecordStoreConfig<ArtifactEntry> = {
 };
 
 export function useArtifactStore() {
-  const { data, set } = useRecordStore<ArtifactEntry>(ARTIFACT_CONFIG);
+  const { data, set, ...sync } = useRecordStore<ArtifactEntry>(ARTIFACT_CONFIG);
   return {
+    ...sync,
     artifacts: data,
     getArtifact: (id: string): ArtifactEntry => data[id] || EMPTY_ARTIFACT,
     setArtifact: set,
@@ -122,7 +74,7 @@ export interface DrillEntry {
 
 const EMPTY_DRILL: DrillEntry = { status: 'unsolved', lastCode: '', attempts: 0 };
 
-const DRILL_CONFIG: RecordStoreConfig<DrillEntry> = {
+const DRILL_CONFIG: RecordSyncConfig<DrillEntry> = {
   localKey: STORE_KEYS.drills,
   action: 'drills',
   field: 'drills',
@@ -130,12 +82,13 @@ const DRILL_CONFIG: RecordStoreConfig<DrillEntry> = {
 };
 
 export function useDrillStore() {
-  const { data, set } = useRecordStore<DrillEntry>(DRILL_CONFIG);
+  const { data, set, ...sync } = useRecordStore<DrillEntry>(DRILL_CONFIG);
   return {
+    ...sync,
     drills: data,
     getDrill: (id: string): DrillEntry => data[id] || EMPTY_DRILL,
     setDrill: (id: string, entry: DrillEntry) =>
-      set(id, { ...entry, attempts: (data[id]?.attempts || 0) + 1 }),
+      set(id, (previous) => ({ ...entry, attempts: (previous?.attempts || 0) + 1 })),
   };
 }
 
@@ -149,7 +102,7 @@ export interface ProjectEntry {
   milestones: Record<string, boolean>;
 }
 
-const PROJECT_CONFIG: RecordStoreConfig<ProjectEntry> = {
+const PROJECT_CONFIG: RecordSyncConfig<ProjectEntry> = {
   localKey: STORE_KEYS.projects,
   action: 'projects',
   field: 'projects',
@@ -157,8 +110,8 @@ const PROJECT_CONFIG: RecordStoreConfig<ProjectEntry> = {
 };
 
 export function useProjectStore() {
-  const { data, set } = useRecordStore<ProjectEntry>(PROJECT_CONFIG);
-  return { projects: data, getProject: (id: string) => data[id], setProject: set };
+  const { data, set, ...sync } = useRecordStore<ProjectEntry>(PROJECT_CONFIG);
+  return { ...sync, projects: data, getProject: (id: string) => data[id], setProject: set };
 }
 
 // ---------------------------------------------------------------------------

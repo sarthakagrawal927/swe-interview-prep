@@ -1,3 +1,4 @@
+import { recordAccountMatches, recordSync } from './record-sync.mjs';
 import { randomBytes } from 'node:crypto';
 
 import { readJsonBody } from '../shared/api/read-json.mjs';
@@ -15,6 +16,8 @@ async function ensureInit() {
 export default async function handler({ request, user, json }) {
   await ensureInit();
   if (!user) return json({ error: 'Unauthorized' }, { status: 401 });
+  if (!recordAccountMatches(request, user))
+    return json({ error: 'Account changed' }, { status: 409 });
   const db = getDb();
 
   if (request.method === 'GET') {
@@ -35,11 +38,14 @@ export default async function handler({ request, user, json }) {
   }
 
   if (request.method === 'POST') {
-    const { projectId, status, nextAction, milestones } = await readJsonBody(request);
+    const body = await readJsonBody(request);
+    const sync = recordSync(body, user);
+    if (sync.error) return json({ error: sync.error }, { status: sync.status });
+    const { projectId, status, nextAction, milestones } = body;
     if (!projectId) return json({ error: 'projectId required' }, { status: 400 });
-    await db.execute({
+    const write = {
       sql: `INSERT INTO user_projects (id, user_id, project_id, status, next_action, milestones_json)
-            VALUES (?, ?, ?, ?, ?, ?)
+            SELECT ?, ?, ?, ?, ?, ? WHERE ${sync.guard}
             ON CONFLICT(user_id, project_id) DO UPDATE SET
               status = excluded.status,
               next_action = excluded.next_action,
@@ -52,8 +58,10 @@ export default async function handler({ request, user, json }) {
         status || 'planned',
         nextAction || null,
         milestones ? JSON.stringify(milestones) : null,
+        ...sync.args,
       ],
-    });
+    };
+    await sync.commit(db, [write]);
     return json({ ok: true });
   }
 

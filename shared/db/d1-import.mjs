@@ -11,6 +11,7 @@ const APPLICATION_TABLES = new Set([
   'feynman_logs',
   'user_artifacts',
   'user_drills',
+  'record_sync_receipts',
   'user_projects',
   'user_learning_notes',
   'user_profile',

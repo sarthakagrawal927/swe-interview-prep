@@ -34,10 +34,37 @@ read or changed, and no deployment occurred.
 
 - [#97: live exercise/account qualification](https://github.com/Significant-Hobbies/swe-interview-prep/issues/97)
   retains the fresh guest, mobile, Monaco and hosted persistence gates.
-- [#98: unsynced local edit reconciliation](https://github.com/Significant-Hobbies/swe-interview-prep/issues/98)
-  tracks the existing generic store's remote-wins behavior after failed or
-  pending writes. This repair does not claim offline/account synchronization
-  reliability.
 
-The September task inventory contained zero open Issues or PRs. No closures
-were justified; the two issues above preserve concrete remaining work.
+## Account record sync repair (#98)
+
+The generic drill, artifact, and project stores persist account-scoped data and
+stable pending operation IDs before sending requests. Controllers survive route
+unmounts, serialize writes, retain pending edits over GET reconciliation, and
+retry on mount, reconnect, or explicit retry. Account switching hides old
+records/drafts, aborts old requests, and the handlers reject mismatched account
+IDs for both reads and writes. Older unscoped records remain guest-local.
+
+`handlers/record-sync.integration.test.mjs` uses the real store, three real
+handlers, D1 adapter, and isolated native SQLite with the real migrations.
+It proves failed POST retention through controller reconstruction (reload),
+lost-response retry with exactly one drill attempt/activity row, delayed POST
+serialization, stale GET rejection, browser storage failure/retry, and account
+isolation. Artifact/project retries leave one receipt. The native SQLite D1
+binding substitute implements transaction commit/rollback. An injected activity
+write failure proves the drill update and receipt both roll back, then retry
+creates exactly one attempt. It is not a hosted
+Cloudflare execution receipt. Import preparation preserves operation receipts.
+
+`RecordSyncStatus.test.tsx` mounts the actual hooks, account boundary and status
+UI. It exercises pending → failed → online retry → synced, and hides Alice’s
+code after switching to Bob or guest. These are DOM tests with synthetic
+authentication and network responses, not a Google account browser login.
+
+The new `0003_record_sync_receipts.sql` must be applied before deploying. No
+remote migration or deployment occurred. This repair qualifies one active tab;
+concurrent-tab and cross-device conflict resolution and other stores
+(notes/mastery/ELO) remain outside its contract. #97 retains hosted workflow
+qualification.
+
+Validation: full `pnpm quality` passed 607 tests across 95 files; the final
+transaction rollback addition passed with all 11 handler/import tests.

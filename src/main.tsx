@@ -7,6 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
+import { RecordSyncBoundary } from './components/RecordSyncBoundary';
 import { flushAnalytics } from './lib/analytics';
 const root = document.getElementById('root');
 
@@ -18,7 +19,9 @@ const tree = (
   <ErrorBoundary scope="root">
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <RecordSyncBoundary>
+          <App />
+        </RecordSyncBoundary>
       </AuthProvider>
     </BrowserRouter>
   </ErrorBoundary>

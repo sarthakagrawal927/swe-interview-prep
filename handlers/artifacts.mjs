@@ -1,3 +1,4 @@
+import { recordAccountMatches, recordSync } from './record-sync.mjs';
 import { randomBytes } from 'node:crypto';
 
 import { readJsonBody } from '../shared/api/read-json.mjs';
@@ -26,6 +27,8 @@ function toEntry(row) {
 export default async function handler({ request, user, json }) {
   await ensureInit();
   if (!user) return json({ error: 'Unauthorized' }, { status: 401 });
+  if (!recordAccountMatches(request, user))
+    return json({ error: 'Account changed' }, { status: 409 });
   const db = getDb();
 
   if (request.method === 'GET') {
@@ -39,11 +42,14 @@ export default async function handler({ request, user, json }) {
   }
 
   if (request.method === 'POST') {
-    const { artifactId, status, url, path, notes, criteria } = await readJsonBody(request);
+    const body = await readJsonBody(request);
+    const sync = recordSync(body, user);
+    if (sync.error) return json({ error: sync.error }, { status: sync.status });
+    const { artifactId, status, url, path, notes, criteria } = body;
     if (!artifactId) return json({ error: 'artifactId required' }, { status: 400 });
-    await db.execute({
+    const write = {
       sql: `INSERT INTO user_artifacts (id, user_id, artifact_id, status, url, path, notes, criteria_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            SELECT ?, ?, ?, ?, ?, ?, ?, ? WHERE ${sync.guard}
             ON CONFLICT(user_id, artifact_id) DO UPDATE SET
               status = excluded.status,
               url = excluded.url,
@@ -60,8 +66,10 @@ export default async function handler({ request, user, json }) {
         path || null,
         notes || null,
         criteria ? JSON.stringify(criteria) : null,
+        ...sync.args,
       ],
-    });
+    };
+    await sync.commit(db, [write]);
     return json({ ok: true });
   }
 
